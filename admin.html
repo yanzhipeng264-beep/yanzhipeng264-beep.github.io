@@ -13,10 +13,11 @@
   .top h1{font-size:16px;}
   .top .sub{font-size:11px;opacity:.85;}
   .top-actions{display:flex;gap:8px;}
-  .btn{border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;background:#eee;color:#444;}
-  .btn.primary{background:var(--red);color:#fff;}
-  .btn.ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);}
-  .btn.small{padding:5px 10px;font-size:12px;}
+  .btn{border:none;border-radius:20px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;background:#f0ece5;color:#444;transition:transform .1s,opacity .15s;}
+  .btn.primary{background:linear-gradient(135deg,#e33b3b,#c62828);color:#fff;box-shadow:0 2px 8px rgba(198,40,40,.25);}
+  .btn.ghost{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.55);}
+  .btn.small{padding:5px 11px;font-size:12px;border-radius:16px;}
+  .btn:active{transform:scale(.96);opacity:.92;}
   .wrap{max-width:860px;margin:0 auto;padding:14px 16px 40px;}
   .panel{background:var(--card);border-radius:12px;box-shadow:0 6px 20px rgba(70,40,20,.07);padding:16px;}
   .tabs{display:flex;gap:8px;margin-bottom:14px;}
@@ -169,7 +170,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
-  <script src="/js/sortable.min.js?v=20260925c"></script>
-  <script src="/js/admin.js?v=20260925c"></script>
+  <script src="/js/sortable.min.js?v=20260925d"></script>
+  <script src="/js/admin.js?v=20260925d"></script>
 </body>
 </html>
