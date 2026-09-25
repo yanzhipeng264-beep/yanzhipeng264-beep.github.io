@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="theme-color" content="#c62828">
+  <title>康艺省钱家具超市（河源店）· 产品画册</title>
+  <link rel="icon" href="/img/logo.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <img class="logo" src="/img/logo.png" alt="康艺省钱家具超市（河源店）" id="headerLogo">
+    <a class="admin-link" href="/admin.html" title="管理后台">管理后台</a>
+  </header>
+
+  <section class="hero">
+    <div class="hero-brand">
+      <h1 class="hero-title" id="heroName">康艺省钱家具超市</h1>
+      <p class="hero-sub" id="heroSlogan">河源店 · 明码标价 · 一口价 · 为河源人民省钱</p>
+    </div>
+    <div class="hero-hours">
+      <svg viewBox="0 0 24 24" class="ic"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.59 3.2 3.2-1.41 1.42L11 12.41V7h2v5.59z"/></svg>
+      <span>营业时间 <b id="heroHours">09:00 - 21:00</b></span>
+    </div>
+    <div class="hero-actions">
+      <a class="btn btn-white" id="btnCall" href="#">
+        <svg viewBox="0 0 24 24" class="ic"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg>
+        一键拨号
+      </a>
+      <a class="btn btn-gold" id="btnNav" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" class="ic"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
+        一键导航
+      </a>
+    </div>
+  </section>
+
+  <div class="values" id="values"></div>
+
+  <div class="toolbar">
+    <div class="searchbox">
+      <svg viewBox="0 0 24 24" class="ic"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+      <input type="search" id="q" placeholder="搜索型号 / 名称 / 规格">
+    </div>
+    <nav class="cats" id="cats"></nav>
+  </div>
+
+  <main class="wrap">
+    <div class="countbar" id="countbar"></div>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" style="display:none">
+      <div class="empty-ic">🛋️</div>
+      <p>暂时没有相关产品</p>
+    </div>
+  </main>
+
+  <section class="info" id="infoSection">
+    <h2 class="sec-title"><span>门店信息</span></h2>
+    <div class="info-card">
+      <div class="info-row">
+        <div class="info-ic red"><svg viewBox="0 0 24 24" class="ic"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg></div>
+        <div class="info-body">
+          <div class="info-label">门店地址</div>
+          <div class="info-val" id="infoAddress"></div>
+        </div>
+        <button class="mini-btn" id="btnCopy">复制</button>
+      </div>
+      <div class="info-row">
+        <div class="info-ic gold"><svg viewBox="0 0 24 24" class="ic"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 10.59 3.2 3.2-1.41 1.42L11 12.41V7h2v5.59z"/></svg></div>
+        <div class="info-body">
+          <div class="info-label">营业时间</div>
+          <div class="info-val" id="infoHours"></div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-ic green"><svg viewBox="0 0 24 24" class="ic"><path fill="currentColor" d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.02-.24c1.12.37 2.33.57 3.57.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.61 21 3 13.39 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1.02l-2.2 2.2z"/></svg></div>
+        <div class="info-body">
+          <div class="info-label">联系电话</div>
+          <div class="info-val" id="infoPhone"></div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-ic blue"><svg viewBox="0 0 24 24" class="ic"><path fill="currentColor" d="M20 2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-4.5 8.5L9 17l-2.5-2.5 1.41-1.41L9 14.17l5.09-5.08 1.41 1.41z"/></svg></div>
+        <div class="info-body">
+          <div class="info-label">服务承诺</div>
+          <div class="info-val">明码标价 · 一口价 · 包安装配送 · 一站式配齐</div>
+        </div>
+      </div>
+      <div class="notice" id="infoNotice" style="display:none"></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>© <span id="year"></span> <span id="footName">康艺省钱家具超市（河源店）</span></p>
+    <p class="foot-slogan">为河源人民省钱</p>
+  </footer>
+
+  <div class="modal" id="detailModal" aria-hidden="true">
+    <div class="modal-mask" data-close></div>
+    <div class="modal-panel">
+      <button class="modal-close" data-close aria-label="关闭">×</button>
+      <div class="modal-scroll">
+        <img class="modal-img" id="mImg" src="/img/logo.png" alt="">
+        <div class="modal-body">
+          <div class="m-cat" id="mCat"></div>
+          <h3 class="m-name" id="mName"></h3>
+          <div class="m-price"><span class="m-price-num">¥<b id="mPrice"></b></span><span class="m-price-tag">一口价</span></div>
+          <div class="spec-table">
+            <div class="spec-row"><span class="spec-k">型号</span><span class="spec-v" id="mModel"></span></div>
+            <div class="spec-row"><span class="spec-k">规格</span><span class="spec-v" id="mSpec"></span></div>
+            <div class="spec-row"><span class="spec-k">外径尺寸</span><span class="spec-v" id="mDim"></span></div>
+            <div class="spec-row"><span class="spec-k">材质</span><span class="spec-v" id="mMat"></span></div>
+          </div>
+          <div class="modal-note">以上为一口价，含安装配送服务，欢迎到店选购。</div>
+          <div class="modal-actions">
+            <a class="btn btn-red" id="mCall" href="#">一键拨号</a>
+            <a class="btn btn-line" id="mNav" href="#" target="_blank" rel="noopener">一键导航</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
