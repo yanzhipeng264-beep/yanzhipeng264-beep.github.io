@@ -80,7 +80,7 @@
 
   function renderCategories() {
     var cats = ['全部'];
-    state.products.forEach(function (p) { if (cats.indexOf(p.category) === -1 && p.category) cats.push(p.category); });
+    state.products.forEach(function (p) { if (p.onSale === false) return; if (p.category && cats.indexOf(p.category) === -1) cats.push(p.category); });
     $('#cats').innerHTML = cats.map(function (c) {
       return '<button class="cat' + (c === state.activeCategory ? ' active' : '') + '" data-cat="' + esc(c) + '">' + esc(c) + '</button>';
     }).join('');
