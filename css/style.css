@@ -56,6 +56,10 @@ input{font-family:inherit;}
 .searchbox{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:0 12px;height:42px;box-shadow:var(--shadow);}
 .searchbox .ic{color:#b7a88f;width:17px;height:17px;}
 .searchbox input{flex:1;border:none;outline:none;font-size:14px;color:var(--ink);background:transparent;min-width:0;}
+.sortbar{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none;}
+.sortbar::-webkit-scrollbar{display:none;}
+.sort-btn{flex:none;padding:7px 14px;border-radius:18px;background:#fff;color:#7a6a55;border:1px solid var(--line);font-size:13px;white-space:nowrap;}
+.sort-btn.active{background:var(--gold);color:#6b3c00;border-color:var(--gold);font-weight:700;}
 .cats{display:flex;gap:8px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none;}
 .cats::-webkit-scrollbar{display:none;}
 .cat{flex:none;padding:7px 15px;border-radius:18px;background:#fff;color:#7a6a55;border:1px solid var(--line);font-size:13.5px;white-space:nowrap;}

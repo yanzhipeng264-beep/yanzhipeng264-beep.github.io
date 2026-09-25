@@ -4,7 +4,7 @@
   var SUPABASE_URL = 'https://bettcoexauuhqlngmggp.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJldHRjb2V4YXV1aHFsbmdtZ2dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyODcwNzIsImV4cCI6MjEwNTg2MzA3Mn0.gshK5D8qn498gUz23pQZEg2pWRwek8T1sdwg1lTSYn4';
 
-  var state = { settings: null, products: [], activeCategory: '全部', query: '' };
+  var state = { settings: null, products: [], activeCategory: '全部', query: '', sort: 'default' };
 
   var $ = function (s) { return document.querySelector(s); };
 
@@ -128,6 +128,8 @@
       var okQ = !q || ((p.name + ' ' + p.model + ' ' + p.spec + ' ' + p.category + ' ' + p.dimensions).toLowerCase().indexOf(q) !== -1);
       return okCat && okQ;
     });
+    if (state.sort === 'price-asc') { list.sort(function (a, b) { return (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0); }); }
+    else if (state.sort === 'price-desc') { list.sort(function (a, b) { return (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0); }); }
     $('#countbar').textContent = '共 ' + list.length + ' 款产品 · 全部一口价';
     $('#grid').innerHTML = list.map(cardHtml).join('');
     $('#empty').style.display = list.length ? 'none' : 'block';
@@ -205,6 +207,14 @@
     qEl.addEventListener('input', function () {
       clearTimeout(timer);
       timer = setTimeout(function () { state.query = qEl.value; renderProducts(); }, 250);
+    });
+    $('#sortbar').querySelectorAll('.sort-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        $('#sortbar').querySelectorAll('.sort-btn').forEach(function (x) { x.classList.remove('active'); });
+        btn.classList.add('active');
+        state.sort = btn.getAttribute('data-sort');
+        renderProducts();
+      });
     });
     loadData().then(function () {
       renderSettings(); renderCategories(); renderProducts();
