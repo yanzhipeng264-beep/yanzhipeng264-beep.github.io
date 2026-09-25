@@ -4,6 +4,8 @@
   var SUPABASE_URL = 'https://bettcoexauuhqlngmggp.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJldHRjb2V4YXV1aHFsbmdtZ2dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyODcwNzIsImV4cCI6MjEwNTg2MzA3Mn0.gshK5D8qn498gUz23pQZEg2pWRwek8T1sdwg1lTSYn4';
 
+  var BASE_CATS = ['实木床','软体床','餐桌','实木沙发','儿童床','茶台','茶几','梳妆台','电视柜','衣柜','床头柜','书桌','床垫'];
+
   var $ = function (s) { return document.querySelector(s); };
   var PASS_KEY = 'ky_admin_pass';
   var products = [];
@@ -23,11 +25,7 @@
 
   function sb(path, opts) {
     opts = opts || {};
-    var headers = {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-      'Accept': 'application/json'
-    };
+    var headers = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Accept': 'application/json' };
     if (pass()) headers['x-admin-password'] = pass();
     if (opts.prefer) headers['Prefer'] = opts.prefer;
     if (opts.body && !opts.raw) headers['Content-Type'] = 'application/json';
@@ -65,7 +63,8 @@
       products = (rows || []).map(function (p) { return {
         id: p.id, category: p.category || '', name: p.name || '', model: p.model || '',
         spec: p.spec || '', dimensions: p.dimensions || '', material: p.material || '',
-        price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false
+        price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false,
+        sort_order: p.sort_order || 0
       }; });
       renderRows(); renderCatList();
     }).catch(function (e) { if (e.status === 401 || e.status === 403) { clearPass(); showLogin(); } else toast(e.message); });
@@ -73,7 +72,7 @@
 
   function renderRows() {
     var tbody = $('#prodRows');
-    $('#countHint').textContent = '共 ' + products.length + ' 款产品';
+    $('#countHint').textContent = '共 ' + products.length + ' 款产品（点击 ↑↓ 排序）';
     if (!products.length) { tbody.innerHTML = '<tr><td colspan="6" class="muted">暂无产品，点击“新增产品”添加。</td></tr>'; return; }
     tbody.innerHTML = products.map(function (p) {
       return '<tr>' +
@@ -82,15 +81,44 @@
         '<td>' + esc(p.category || '-') + '</td>' +
         '<td class="muted">' + esc(p.spec || '-') + '</td>' +
         '<td class="price">¥' + esc(p.price || '0') + '</td>' +
-        '<td class="ops"><button class="btn small" data-edit="' + esc(p.id) + '">编辑</button><button class="btn small" data-del="' + esc(p.id) + '">删除</button></td>' +
+        '<td class="ops"><button class="btn small" data-up="' + esc(p.id) + '" title="上移">↑</button>' +
+        '<button class="btn small" data-down="' + esc(p.id) + '" title="下移">↓</button> ' +
+        '<button class="btn small" data-edit="' + esc(p.id) + '">编辑</button>' +
+        '<button class="btn small" data-del="' + esc(p.id) + '">删除</button></td>' +
       '</tr>';
     }).join('');
+    tbody.querySelectorAll('[data-up]').forEach(function (b) { b.onclick = function () { moveProduct(b.getAttribute('data-up'), -1); }; });
+    tbody.querySelectorAll('[data-down]').forEach(function (b) { b.onclick = function () { moveProduct(b.getAttribute('data-down'), 1); }; });
     tbody.querySelectorAll('[data-edit]').forEach(function (b) { b.onclick = function () { openModal(b.getAttribute('data-edit')); }; });
     tbody.querySelectorAll('[data-del]').forEach(function (b) { b.onclick = function () { delProduct(b.getAttribute('data-del')); }; });
   }
 
+  function moveProduct(id, dir) {
+    var sorted = products.slice().sort(function (a, b) {
+      return (a.sort_order || 0) - (b.sort_order || 0) || (a.id < b.id ? -1 : 1);
+    });
+    var idx = -1;
+    for (var i = 0; i < sorted.length; i++) { if (sorted[i].id === id) { idx = i; break; } }
+    var j = idx + dir;
+    if (idx < 0 || j < 0 || j >= sorted.length) return;
+    var a = sorted[idx], b = sorted[j];
+    var soA = a.sort_order || 0, soB = b.sort_order || 0;
+    if (soA === soB) {
+      var tasks = sorted.map(function (p, k) {
+        return sb('/rest/v1/products?id=eq.' + encodeURIComponent(p.id), { method: 'PATCH', body: JSON.stringify({ sort_order: k + 1 }), prefer: 'return=representation' });
+      });
+      Promise.all(tasks).then(function () { toast('排序已更新'); loadProducts(); }).catch(function (e) { toast(e.message); });
+      return;
+    }
+    Promise.all([
+      sb('/rest/v1/products?id=eq.' + encodeURIComponent(a.id), { method: 'PATCH', body: JSON.stringify({ sort_order: soB }), prefer: 'return=representation' }),
+      sb('/rest/v1/products?id=eq.' + encodeURIComponent(b.id), { method: 'PATCH', body: JSON.stringify({ sort_order: soA }), prefer: 'return=representation' })
+    ]).then(function () { loadProducts(); }).catch(function (e) { toast(e.message); });
+  }
+
   function renderCatList() {
-    var cats = []; products.forEach(function (p) { if (p.category && cats.indexOf(p.category) === -1) cats.push(p.category); });
+    var cats = BASE_CATS.slice();
+    products.forEach(function (p) { if (p.category && cats.indexOf(p.category) === -1) cats.push(p.category); });
     $('#catList').innerHTML = cats.map(function (c) { return '<option value="' + esc(c) + '">'; }).join('');
   }
 
@@ -140,6 +168,9 @@
       p = sb('/rest/v1/products?id=eq.' + encodeURIComponent(editingId), { method: 'PATCH', body: JSON.stringify(d), prefer: 'return=representation' });
     } else {
       d.id = 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      var maxSo = 0;
+      products.forEach(function (x) { if ((x.sort_order || 0) > maxSo) maxSo = x.sort_order || 0; });
+      d.sort_order = maxSo + 1;
       p = sb('/rest/v1/products', { method: 'POST', body: JSON.stringify(d), prefer: 'return=representation' });
     }
     p.then(function () { toast('已保存'); closeModal(); loadProducts(); })
@@ -161,12 +192,7 @@
     reader.onload = function () {
       fetch(SUPABASE_URL + '/storage/v1/object/product-images/' + fname, {
         method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-          'x-admin-password': pass(),
-          'Content-Type': file.type || 'application/octet-stream'
-        },
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'x-admin-password': pass(), 'Content-Type': file.type || 'application/octet-stream' },
         body: reader.result
       }).then(function (r) {
         if (!r.ok) throw new Error('上传失败 ' + r.status);
