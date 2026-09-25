@@ -56,10 +56,10 @@ input{font-family:inherit;}
 .searchbox{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:0 12px;height:42px;box-shadow:var(--shadow);}
 .searchbox .ic{color:#b7a88f;width:17px;height:17px;}
 .searchbox input{flex:1;border:none;outline:none;font-size:14px;color:var(--ink);background:transparent;min-width:0;}
-.sortbar{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none;}
-.sortbar::-webkit-scrollbar{display:none;}
-.sort-btn{flex:none;padding:7px 14px;border-radius:18px;background:#fff;color:#7a6a55;border:1px solid var(--line);font-size:13px;white-space:nowrap;}
-.sort-btn.active{background:var(--gold);color:#6b3c00;border-color:var(--gold);font-weight:700;}
+.sortbar{display:flex;margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--shadow);}
+.sort-btn{flex:1;padding:9px 0;text-align:center;background:#fff;color:#8a7a65;border:none;font-size:13px;white-space:nowrap;}
+.sort-btn+.sort-btn{border-left:1px solid var(--line);}
+.sort-btn.active{background:linear-gradient(135deg,#e33b3b,#c62828);color:#fff;font-weight:700;}
 .cats{display:flex;gap:8px;overflow-x:auto;margin-top:10px;padding-bottom:2px;scrollbar-width:none;}
 .cats::-webkit-scrollbar{display:none;}
 .cat{flex:none;padding:7px 15px;border-radius:18px;background:#fff;color:#7a6a55;border:1px solid var(--line);font-size:13.5px;white-space:nowrap;}
@@ -150,3 +150,10 @@ input{font-family:inherit;}
 /* toast */
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,.78);color:#fff;font-size:13px;padding:10px 18px;border-radius:20px;opacity:0;pointer-events:none;transition:.25s;z-index:200;max-width:80vw;text-align:center;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.card-views{font-size:11px;color:#b08a2e;margin-top:2px;}
+.m-views{font-size:12px;color:var(--muted);margin:-6px 0 12px;}
+.hero-stickers{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.sticker{position:absolute;font-size:60px;opacity:.16;filter:grayscale(1) brightness(0) invert(1);line-height:1;}
+.sticker.s1{right:16px;top:14px;transform:rotate(12deg);}
+.sticker.s2{right:64px;bottom:18px;transform:rotate(-10deg);font-size:50px;}
+.sticker.s3{left:10px;bottom:44px;transform:rotate(-8deg);font-size:46px;}

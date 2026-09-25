@@ -112,6 +112,7 @@
             (p.dimensions ? '<span>外径 ' + esc(p.dimensions) + '</span>' : '') +
             (p.material ? '<span>材质 ' + esc(p.material) + '</span>' : '') +
           '</div>' +
+          '<div class="card-views">👁 ' + esc(p.views || 0) + ' 浏览</div>' +
           '<div class="card-foot">' +
             '<div class="card-price"><small>¥</small>' + esc(p.price || '0') + '<span class="card-price-label">一口价</span></div>' +
             '<span class="card-service">包安装配送</span>' +
@@ -152,6 +153,10 @@
     $('#mSpec').textContent = p.spec || '—';
     $('#mDim').textContent = p.dimensions || '—';
     $('#mMat').textContent = p.material || '—';
+    var v = (p.views || 0) + 1;
+    p.views = v;
+    $('#mViews').textContent = '👁 ' + v + ' 次浏览';
+    sb('/rest/v1/rpc/increment_product_view', { method: 'POST', body: JSON.stringify({ pid: p.id }) }).catch(function () {});
     var phone = digits((state.settings || {}).phone);
     $('#mCall').href = phone ? 'tel:' + phone : '#';
     $('#mCall').onclick = phone ? null : function (e) { e.preventDefault(); toast('暂未填写联系电话'); };
@@ -186,7 +191,7 @@
           return {
             id: p.id, category: p.category || '', name: p.name || '', model: p.model || '',
             spec: p.spec || '', dimensions: p.dimensions || '', material: p.material || '',
-            price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false
+            price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false, views: p.views || 0
           };
         });
       })
