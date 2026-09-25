@@ -10,6 +10,7 @@
   var PASS_KEY = 'ky_admin_pass';
   var products = [];
   var editingId = null;
+  var sortable = null;
 
   function pass() { return localStorage.getItem(PASS_KEY) || ''; }
   function setPass(p) { localStorage.setItem(PASS_KEY, p); }
@@ -72,48 +73,32 @@
 
   function renderRows() {
     var tbody = $('#prodRows');
-    $('#countHint').textContent = '共 ' + products.length + ' 款产品（点击 ↑↓ 排序）';
-    if (!products.length) { tbody.innerHTML = '<tr><td colspan="6" class="muted">暂无产品，点击“新增产品”添加。</td></tr>'; return; }
+    $('#countHint').textContent = '共 ' + products.length + ' 款产品（长按拖动左侧 ⋮⋮ 可排序）';
+    if (!products.length) { tbody.innerHTML = '<tr><td colspan="7" class="muted">暂无产品，点击“新增产品”添加。</td></tr>'; return; }
     tbody.innerHTML = products.map(function (p) {
-      return '<tr>' +
+      return '<tr data-id="' + esc(p.id) + '">' +
+        '<td class="drag-cell"><span class="drag-handle">⋮⋮</span></td>' +
         '<td><img src="' + esc(p.image || '/img/logo.png') + '" alt="" onerror="this.src=\'/img/logo.png\'"></td>' +
         '<td><b>' + esc(p.name) + '</b><br><span class="muted">' + esc(p.model || '') + '</span></td>' +
         '<td>' + esc(p.category || '-') + '</td>' +
         '<td class="muted">' + esc(p.spec || '-') + '</td>' +
         '<td class="price">¥' + esc(p.price || '0') + '</td>' +
-        '<td class="ops"><button class="btn small" data-up="' + esc(p.id) + '" title="上移">↑</button>' +
-        '<button class="btn small" data-down="' + esc(p.id) + '" title="下移">↓</button> ' +
-        '<button class="btn small" data-edit="' + esc(p.id) + '">编辑</button>' +
+        '<td class="ops"><button class="btn small" data-edit="' + esc(p.id) + '">编辑</button>' +
         '<button class="btn small" data-del="' + esc(p.id) + '">删除</button></td>' +
       '</tr>';
     }).join('');
-    tbody.querySelectorAll('[data-up]').forEach(function (b) { b.onclick = function () { moveProduct(b.getAttribute('data-up'), -1); }; });
-    tbody.querySelectorAll('[data-down]').forEach(function (b) { b.onclick = function () { moveProduct(b.getAttribute('data-down'), 1); }; });
     tbody.querySelectorAll('[data-edit]').forEach(function (b) { b.onclick = function () { openModal(b.getAttribute('data-edit')); }; });
     tbody.querySelectorAll('[data-del]').forEach(function (b) { b.onclick = function () { delProduct(b.getAttribute('data-del')); }; });
   }
 
-  function moveProduct(id, dir) {
-    var sorted = products.slice().sort(function (a, b) {
-      return (a.sort_order || 0) - (b.sort_order || 0) || (a.id < b.id ? -1 : 1);
+  function persistOrder() {
+    var ids = [];
+    document.querySelectorAll('#prodRows tr[data-id]').forEach(function (tr) { ids.push(tr.getAttribute('data-id')); });
+    if (!ids.length) return;
+    var tasks = ids.map(function (id, i) {
+      return sb('/rest/v1/products?id=eq.' + encodeURIComponent(id), { method: 'PATCH', body: JSON.stringify({ sort_order: i + 1 }), prefer: 'return=representation' });
     });
-    var idx = -1;
-    for (var i = 0; i < sorted.length; i++) { if (sorted[i].id === id) { idx = i; break; } }
-    var j = idx + dir;
-    if (idx < 0 || j < 0 || j >= sorted.length) return;
-    var a = sorted[idx], b = sorted[j];
-    var soA = a.sort_order || 0, soB = b.sort_order || 0;
-    if (soA === soB) {
-      var tasks = sorted.map(function (p, k) {
-        return sb('/rest/v1/products?id=eq.' + encodeURIComponent(p.id), { method: 'PATCH', body: JSON.stringify({ sort_order: k + 1 }), prefer: 'return=representation' });
-      });
-      Promise.all(tasks).then(function () { toast('排序已更新'); loadProducts(); }).catch(function (e) { toast(e.message); });
-      return;
-    }
-    Promise.all([
-      sb('/rest/v1/products?id=eq.' + encodeURIComponent(a.id), { method: 'PATCH', body: JSON.stringify({ sort_order: soB }), prefer: 'return=representation' }),
-      sb('/rest/v1/products?id=eq.' + encodeURIComponent(b.id), { method: 'PATCH', body: JSON.stringify({ sort_order: soA }), prefer: 'return=representation' })
-    ]).then(function () { loadProducts(); }).catch(function (e) { toast(e.message); });
+    Promise.all(tasks).then(function () { toast('排序已保存'); loadProducts(); }).catch(function (e) { toast(e.message); });
   }
 
   function renderCatList() {
@@ -214,6 +199,7 @@
       $('#s_wechat').value = s.wechat || '';
       $('#s_notice').value = s.notice || '';
       $('#s_values').value = (s.core_values || []).join('\n');
+      $('#s_catorder').value = (s.category_order || []).join('\n');
     });
   }
   function saveSettings() {
@@ -226,11 +212,25 @@
       phone: $('#s_phone').value.trim(),
       wechat: $('#s_wechat').value.trim(),
       notice: $('#s_notice').value.trim(),
-      core_values: $('#s_values').value.split('\n').map(function (v) { return v.trim(); }).filter(Boolean)
+      core_values: $('#s_values').value.split('\n').map(function (v) { return v.trim(); }).filter(Boolean),
+      category_order: $('#s_catorder').value.split('\n').map(function (v) { return v.trim(); }).filter(Boolean)
     };
     sb('/rest/v1/settings', { method: 'POST', body: JSON.stringify(d), prefer: 'resolution=merge-duplicates,return=representation' })
       .then(function () { toast('门店设置已保存'); })
       .catch(function (e) { toast(e.status === 401 || e.status === 403 ? '密码错误或无权限' : e.message); });
+  }
+
+  function initSortable() {
+    var tbody = $('#prodRows');
+    if (!window.Sortable || !tbody || sortable) return;
+    sortable = window.Sortable.create(tbody, {
+      handle: '.drag-handle',
+      animation: 150,
+      delay: 350,
+      delayOnTouchOnly: true,
+      ghostClass: 'sort-ghost',
+      onEnd: function () { persistOrder(); }
+    });
   }
 
   function bind() {
@@ -262,6 +262,8 @@
     $('#fileInput').onchange = function () { if (this.files && this.files[0]) uploadImage(this.files[0]); };
     $('#btnSaveSettings').onclick = saveSettings;
     $('#prodModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+
+    initSortable();
   }
 
   bind();

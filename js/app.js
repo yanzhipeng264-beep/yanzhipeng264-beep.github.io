@@ -79,8 +79,12 @@
   }
 
   function renderCategories() {
-    var cats = ['全部'];
-    state.products.forEach(function (p) { if (p.onSale === false) return; if (p.category && cats.indexOf(p.category) === -1) cats.push(p.category); });
+    var cats = [];
+    var seen = {};
+    state.products.forEach(function (p) { if (p.onSale === false) return; if (p.category && !seen[p.category]) { seen[p.category] = true; cats.push(p.category); } });
+    var order = (state.settings && state.settings.categoryOrder) || [];
+    cats.sort(function (a, b) { var ia = order.indexOf(a), ib = order.indexOf(b); if (ia === -1) ia = 9999; if (ib === -1) ib = 9999; return ia - ib; });
+    cats.unshift('全部');
     $('#cats').innerHTML = cats.map(function (c) {
       return '<button class="cat' + (c === state.activeCategory ? ' active' : '') + '" data-cat="' + esc(c) + '">' + esc(c) + '</button>';
     }).join('');
@@ -171,7 +175,8 @@
           phone: r.phone || '',
           wechat: r.wechat || '',
           notice: r.notice || '',
-          values: (r.core_values && r.core_values.length) ? r.core_values : []
+          values: (r.core_values && r.core_values.length) ? r.core_values : [],
+          categoryOrder: (r.category_order && r.category_order.length) ? r.category_order : []
         };
       }),
       sb('/rest/v1/products?select=*&order=sort_order.asc,created_at.asc').then(function (rows) {

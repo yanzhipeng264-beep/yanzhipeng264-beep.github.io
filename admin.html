@@ -51,6 +51,10 @@
   .login h1{font-size:18px;margin-bottom:4px;}
   .login .sub{color:var(--muted);font-size:12px;margin-bottom:18px;}
   .hidden{display:none !important;}
+  .drag-cell{width:30px;text-align:center;padding:0 2px;}
+  .drag-handle{cursor:grab;color:#bbb;font-size:15px;letter-spacing:-1px;user-select:none;touch-action:none;display:inline-block;padding:4px 2px;}
+  .drag-handle:active{cursor:grabbing;color:#999;}
+  .sort-ghost{opacity:.35;background:#ffe3e3;}
 </style>
 </head>
 <body>
@@ -89,7 +93,7 @@
         </div>
         <div class="panel" style="overflow-x:auto">
           <table>
-            <thead><tr><th>图</th><th>名称 / 型号</th><th>分类</th><th>规格</th><th>一口价</th><th>操作</th></tr></thead>
+            <thead><tr><th></th><th>图</th><th>名称 / 型号</th><th>分类</th><th>规格</th><th>一口价</th><th>操作</th></tr></thead>
             <tbody id="prodRows"></tbody>
           </table>
         </div>
@@ -109,6 +113,7 @@
             <div class="field"><label>温馨提示（选填）</label><input id="s_notice"></div>
           </div>
           <div class="field"><label>核心卖点（每行一个）</label><textarea id="s_values"></textarea></div>
+          <div class="field"><label>分类顺序（每行一个，决定画册分类栏顺序）</label><textarea id="s_catorder"></textarea></div>
           <button class="btn primary" id="btnSaveSettings">保存门店设置</button>
           <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
           <div class="field"><label>修改管理密码</label>
@@ -156,6 +161,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
+  <script src="/js/sortable.min.js"></script>
   <script src="/js/admin.js"></script>
 </body>
 </html>
