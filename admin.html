@@ -51,6 +51,13 @@
   .login h1{font-size:18px;margin-bottom:4px;}
   .login .sub{color:var(--muted);font-size:12px;margin-bottom:18px;}
   .hidden{display:none !important;}
+  #filterCat{border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13px;background:#fff;color:#444;}
+  .img-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .img-item{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:#f3efe8;}
+  .img-item img{width:100%;height:100%;object-fit:cover;}
+  .img-item .img-cover{position:absolute;left:0;right:0;bottom:0;background:rgba(198,40,40,.9);color:#fff;font-size:10px;text-align:center;padding:1px 0;}
+  .img-item .img-del{position:absolute;right:2px;top:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:12px;line-height:18px;text-align:center;cursor:pointer;border:none;}
+  .img-item .img-up{position:absolute;left:2px;top:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:12px;line-height:18px;text-align:center;cursor:pointer;border:none;}
   .drag-cell{width:30px;text-align:center;padding:0 2px;}
   .drag-handle{cursor:grab;color:#bbb;font-size:15px;letter-spacing:-1px;user-select:none;touch-action:none;display:inline-block;padding:4px 2px;}
   .drag-handle:active{cursor:grabbing;color:#999;}
@@ -89,6 +96,7 @@
       <section id="tab-products">
         <div class="bar">
           <button class="btn primary" id="btnAdd">＋ 新增产品</button>
+          <select id="filterCat"><option value="">全部分类</option></select>
           <span class="hint" id="countHint"></span>
         </div>
         <div class="panel" style="overflow-x:auto">
@@ -143,14 +151,14 @@
       <div class="field"><label>规格</label><input id="pm_spec" placeholder="如 3人位 + 贵妃位"></div>
       <div class="field"><label>外径尺寸</label><input id="pm_dimensions" placeholder="如 长280 × 深90 × 高85 cm"></div>
       <div class="field"><label>材质</label><input id="pm_material" placeholder="如 科技布 + 高密度海绵 + 实木框架"></div>
-      <div class="field"><label>产品图</label>
-        <input id="pm_image" placeholder="图片链接，或点击下方上传图片">
-        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-          <button class="btn small" id="btnUpload">上传图片</button>
+      <div class="field"><label>产品图片（可传多张，第一张为封面）</label>
+        <div id="pm_imgs" class="img-list"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn small" id="btnUpload">＋ 上传图片</button>
           <input type="file" id="fileInput" accept="image/*" style="display:none">
-          <span class="muted">支持 png / jpg / gif / webp / svg</span>
+          <input id="pm_imgurl" placeholder="粘贴图片链接" style="flex:1;min-width:140px">
+          <button class="btn small" id="btnAddUrl">添加链接</button>
         </div>
-        <img class="img-preview" id="pm_preview" alt="预览">
       </div>
       <div class="field" style="display:flex;gap:16px">
         <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="pm_featured"> 推荐置顶</label>
@@ -161,7 +169,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
-  <script src="/js/sortable.min.js?v=20260925b"></script>
-  <script src="/js/admin.js?v=20260925b"></script>
+  <script src="/js/sortable.min.js?v=20260925c"></script>
+  <script src="/js/admin.js?v=20260925c"></script>
 </body>
 </html>

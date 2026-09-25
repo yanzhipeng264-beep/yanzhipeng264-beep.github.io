@@ -4,7 +4,7 @@
   var SUPABASE_URL = 'https://bettcoexauuhqlngmggp.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJldHRjb2V4YXV1aHFsbmdtZ2dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyODcwNzIsImV4cCI6MjEwNTg2MzA3Mn0.gshK5D8qn498gUz23pQZEg2pWRwek8T1sdwg1lTSYn4';
 
-  var state = { settings: null, products: [], activeCategory: '全部', query: '', sort: 'default' };
+  var state = { settings: null, products: [], activeCategory: '全部', query: '', sort: 'default', gallery: [], galleryIdx: 0 };
 
   var $ = function (s) { return document.querySelector(s); };
 
@@ -144,8 +144,10 @@
   }
 
   function openDetail(p) {
-    $('#mImg').src = p.image || '/img/logo.png';
-    $('#mImg').onerror = function () { this.src = '/img/logo.png'; };
+    var imgs = (p.images && p.images.length) ? p.images.slice() : [p.image || '/img/logo.png'];
+    state.gallery = imgs;
+    state.galleryIdx = 0;
+    renderGallery();
     $('#mCat').textContent = p.category || '家具';
     $('#mName').textContent = p.name || '';
     $('#mPrice').textContent = p.price || '0';
@@ -166,6 +168,25 @@
     $('#mNav').href = navUrl();
     $('#detailModal').classList.add('open');
     document.body.style.overflow = 'hidden';
+  }
+
+  function renderGallery() {
+    var imgs = state.gallery || [];
+    var i = state.galleryIdx || 0;
+    if (i < 0) i = 0;
+    if (i >= imgs.length) i = imgs.length - 1;
+    state.galleryIdx = i;
+    var m = $('#mImg');
+    m.src = imgs[i] || '/img/logo.png';
+    m.onerror = function () { this.src = '/img/logo.png'; };
+    $('#mThumbs').innerHTML = imgs.map(function (u, k) {
+      return '<img class="thumb' + (k === i ? ' active' : '') + '" src="' + esc(u) + '" data-i="' + k + '" onerror="this.style.display=\'none\'">';
+    }).join('');
+    $('#mThumbs').querySelectorAll('.thumb').forEach(function (t) {
+      t.onclick = function () { state.galleryIdx = parseInt(t.getAttribute('data-i'), 10); renderGallery(); };
+    });
+    $('#mPrev').style.display = imgs.length > 1 ? 'flex' : 'none';
+    $('#mNext').style.display = imgs.length > 1 ? 'flex' : 'none';
   }
 
   function closeDetail() {
@@ -194,7 +215,7 @@
           return {
             id: p.id, category: p.category || '', name: p.name || '', model: p.model || '',
             spec: p.spec || '', dimensions: p.dimensions || '', material: p.material || '',
-            price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false, views: p.views || 0
+            price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false, views: p.views || 0, images: (p.images && p.images.length) ? p.images : []
           };
         });
       })
@@ -210,6 +231,8 @@
         navigator.clipboard.writeText(addr).then(function () { toast('地址已复制'); }, function () { fallbackCopy(addr); });
       } else { fallbackCopy(addr); }
     });
+    $('#mPrev').addEventListener('click', function () { if (state.galleryIdx > 0) { state.galleryIdx--; renderGallery(); } });
+    $('#mNext').addEventListener('click', function () { if (state.galleryIdx < (state.gallery || []).length - 1) { state.galleryIdx++; renderGallery(); } });
     var qEl = $('#q');
     var timer = null;
     qEl.addEventListener('input', function () {
