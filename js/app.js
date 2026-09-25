@@ -156,7 +156,10 @@
     var v = (p.views || 0) + 1;
     p.views = v;
     $('#mViews').textContent = '👁 ' + v + ' 次浏览';
-    sb('/rest/v1/rpc/increment_product_view', { method: 'POST', body: JSON.stringify({ pid: p.id }) }).catch(function () {});
+    sb('/rest/v1/rpc/increment_product_view', { method: 'POST', body: JSON.stringify({ pid: p.id }) }).then(function () {
+      var el = document.querySelector('.card[data-id="' + p.id + '"] .card-views');
+      if (el) el.textContent = '👁 ' + v + ' 浏览';
+    }).catch(function () {});
     var phone = digits((state.settings || {}).phone);
     $('#mCall').href = phone ? 'tel:' + phone : '#';
     $('#mCall').onclick = phone ? null : function (e) { e.preventDefault(); toast('暂未填写联系电话'); };
