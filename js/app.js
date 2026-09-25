@@ -1,20 +1,29 @@
 (function () {
   'use strict';
 
-  var state = {
-    settings: null,
-    products: [],
-    activeCategory: '全部',
-    query: ''
-  };
+  var SUPABASE_URL = 'https://bettcoexauuhqlngmggp.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJldHRjb2V4YXV1aHFsbmdtZ2dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyODcwNzIsImV4cCI6MjEwNTg2MzA3Mn0.gshK5D8qn498gUz23pQZEg2pWRwek8T1sdwg1lTSYn4';
+
+  var state = { settings: null, products: [], activeCategory: '全部', query: '' };
 
   var $ = function (s) { return document.querySelector(s); };
 
-  function api(path) {
-    return fetch(path, { headers: { 'Accept': 'application/json' } }).then(function (r) {
-      if (!r.ok) throw new Error('请求失败');
-      return r.json();
-    });
+  function sb(path, options) {
+    options = options || {};
+    var headers = {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+      'Accept': 'application/json'
+    };
+    if (options.headers) { for (var k in options.headers) headers[k] = options.headers[k]; }
+    if (options.body && !options.raw) headers['Content-Type'] = 'application/json';
+    return fetch(SUPABASE_URL + path, { method: options.method || 'GET', headers: headers, body: options.body })
+      .then(function (r) {
+        return r.json().catch(function () { return null; }).then(function (j) {
+          if (!r.ok) throw new Error((j && j.message) || ('请求失败 ' + r.status));
+          return j;
+        });
+      });
   }
 
   function esc(s) {
@@ -22,15 +31,10 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
-
   function toast(msg) {
-    var t = $('#toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(t._timer);
-    t._timer = setTimeout(function () { t.classList.remove('show'); }, 1800);
+    var t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._timer); t._timer = setTimeout(function () { t.classList.remove('show'); }, 1800);
   }
-
   function digits(s) { return String(s || '').replace(/\D/g, ''); }
 
   function navUrl() {
@@ -43,13 +47,8 @@
     var s = state.settings || {};
     var phone = digits(s.phone);
     var callEl = $('#btnCall');
-    if (phone) {
-      callEl.href = 'tel:' + phone;
-      callEl.onclick = null;
-    } else {
-      callEl.href = '#';
-      callEl.onclick = function (e) { e.preventDefault(); toast('暂未填写联系电话'); };
-    }
+    if (phone) { callEl.href = 'tel:' + phone; callEl.onclick = null; }
+    else { callEl.href = '#'; callEl.onclick = function (e) { e.preventDefault(); toast('暂未填写联系电话'); }; }
     $('#btnNav').href = navUrl();
     $('#mNav').href = navUrl();
   }
@@ -63,15 +62,12 @@
     $('#footName').textContent = s.storeName || '康艺省钱家具超市（河源店）';
     $('#year').textContent = new Date().getFullYear();
 
-    // values
     var vals = (s.values && s.values.length) ? s.values : ['明码标价', '一口价', '包安装配送', '一站式配齐', '为河源人民省钱'];
     var icons = ['💰', '🧾', '🚚', '🛋️', '❤️', '⭐'];
-    var vHtml = vals.map(function (v, i) {
+    $('#values').innerHTML = vals.map(function (v, i) {
       return '<span class="value"><span class="v-ic">' + (icons[i] || '⭐') + '</span>' + esc(v) + '</span>';
     }).join('');
-    $('#values').innerHTML = vHtml;
 
-    // info
     $('#infoAddress').textContent = s.address || '';
     $('#infoHours').textContent = s.hours || '';
     $('#infoPhone').innerHTML = (s.phone ? '<a href="tel:' + digits(s.phone) + '">' + esc(s.phone) + '</a>' : '暂未填写');
@@ -85,10 +81,9 @@
   function renderCategories() {
     var cats = ['全部'];
     state.products.forEach(function (p) { if (cats.indexOf(p.category) === -1 && p.category) cats.push(p.category); });
-    var html = cats.map(function (c) {
+    $('#cats').innerHTML = cats.map(function (c) {
       return '<button class="cat' + (c === state.activeCategory ? ' active' : '') + '" data-cat="' + esc(c) + '">' + esc(c) + '</button>';
     }).join('');
-    $('#cats').innerHTML = html;
     $('#cats').querySelectorAll('.cat').forEach(function (btn) {
       btn.addEventListener('click', function () {
         state.activeCategory = btn.getAttribute('data-cat');
@@ -123,6 +118,7 @@
 
   function renderProducts() {
     var list = state.products.filter(function (p) {
+      if (p.onSale === false) return false;
       var okCat = state.activeCategory === '全部' || p.category === state.activeCategory;
       var q = state.query.trim().toLowerCase();
       var okQ = !q || ((p.name + ' ' + p.model + ' ' + p.spec + ' ' + p.category + ' ' + p.dimensions).toLowerCase().indexOf(q) !== -1);
@@ -131,7 +127,6 @@
     $('#countbar').textContent = '共 ' + list.length + ' 款产品 · 全部一口价';
     $('#grid').innerHTML = list.map(cardHtml).join('');
     $('#empty').style.display = list.length ? 'none' : 'block';
-
     $('#grid').querySelectorAll('.card').forEach(function (card) {
       card.addEventListener('click', function () {
         var id = card.getAttribute('data-id');
@@ -164,13 +159,35 @@
     document.body.style.overflow = '';
   }
 
-  function init() {
-    // close modal
-    $('#detailModal').querySelectorAll('[data-close]').forEach(function (el) {
-      el.addEventListener('click', closeDetail);
-    });
+  function loadData() {
+    return Promise.all([
+      sb('/rest/v1/settings?id=eq.1&select=*').then(function (rows) {
+        var r = (rows && rows[0]) || {};
+        state.settings = {
+          storeName: r.store_name || '',
+          slogan: r.slogan || '',
+          hours: r.hours || '',
+          address: r.address || '',
+          phone: r.phone || '',
+          wechat: r.wechat || '',
+          notice: r.notice || '',
+          values: (r.core_values && r.core_values.length) ? r.core_values : []
+        };
+      }),
+      sb('/rest/v1/products?select=*&order=sort_order.asc,created_at.asc').then(function (rows) {
+        state.products = (rows || []).map(function (p) {
+          return {
+            id: p.id, category: p.category || '', name: p.name || '', model: p.model || '',
+            spec: p.spec || '', dimensions: p.dimensions || '', material: p.material || '',
+            price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false
+          };
+        });
+      })
+    ]);
+  }
 
-    // copy address
+  function init() {
+    $('#detailModal').querySelectorAll('[data-close]').forEach(function (el) { el.addEventListener('click', closeDetail); });
     $('#btnCopy').addEventListener('click', function () {
       var addr = (state.settings || {}).address || '';
       if (!addr) { toast('暂未填写地址'); return; }
@@ -178,34 +195,21 @@
         navigator.clipboard.writeText(addr).then(function () { toast('地址已复制'); }, function () { fallbackCopy(addr); });
       } else { fallbackCopy(addr); }
     });
-
-    // search
     var qEl = $('#q');
     var timer = null;
     qEl.addEventListener('input', function () {
       clearTimeout(timer);
       timer = setTimeout(function () { state.query = qEl.value; renderProducts(); }, 250);
     });
-
-    // load
-    Promise.all([fetch('data/settings.json').then(function(r){ return r.json(); }), fetch('data/products.json').then(function(r){ return r.json(); })]).then(function (res) {
-      state.settings = res[0];
-      state.products = res[1] || [];
-      renderSettings();
-      renderCategories();
-      renderProducts();
-    }).catch(function (e) {
-      toast('加载失败，请刷新重试');
-    });
+    loadData().then(function () {
+      renderSettings(); renderCategories(); renderProducts();
+    }).catch(function (e) { toast('加载失败，请刷新重试'); });
   }
 
   function fallbackCopy(text) {
     var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
     try { document.execCommand('copy'); toast('地址已复制'); } catch (e) { toast('请长按地址手动复制'); }
     document.body.removeChild(ta);
   }
