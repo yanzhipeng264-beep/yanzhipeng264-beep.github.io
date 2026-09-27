@@ -215,7 +215,7 @@
     var d = {
       id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       category: src.category,
-      name: src.name + '（副本）',
+      name: src.name,
       model: src.model,
       spec: src.spec,
       dimensions: src.dimensions,
