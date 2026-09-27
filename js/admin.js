@@ -87,10 +87,12 @@
         '<td>' + esc(p.category || '-') + '</td>' +
         '<td class="muted">' + esc(p.spec || '-') + '</td>' +
         '<td class="price">¥' + esc(p.price || '0') + '</td>' +
-        '<td class="ops"><button class="btn small" data-edit="' + esc(p.id) + '">编辑</button>' +
+        '<td class="ops"><button class="btn small" data-copy="' + esc(p.id) + '">复制</button> ' +
+        '<button class="btn small" data-edit="' + esc(p.id) + '">编辑</button>' +
         '<button class="btn small" data-del="' + esc(p.id) + '">删除</button></td>' +
       '</tr>';
     }).join('');
+    tbody.querySelectorAll('[data-copy]').forEach(function (b) { b.onclick = function () { copyProduct(b.getAttribute('data-copy')); }; });
     tbody.querySelectorAll('[data-edit]').forEach(function (b) { b.onclick = function () { openModal(b.getAttribute('data-edit')); }; });
     tbody.querySelectorAll('[data-del]').forEach(function (b) { b.onclick = function () { delProduct(b.getAttribute('data-del')); }; });
   }
@@ -202,6 +204,32 @@
     }
     p.then(function () { toast('已保存'); closeModal(); loadProducts(); })
       .catch(function (e) { if (e.status === 401 || e.status === 403) { toast('密码错误或无权限'); } else toast(e.message); });
+  }
+
+  function copyProduct(id) {
+    var src = null;
+    for (var i = 0; i < products.length; i++) { if (products[i].id === id) { src = products[i]; break; } }
+    if (!src) return;
+    var maxSo = 0;
+    products.forEach(function (x) { if ((x.sort_order || 0) > maxSo) maxSo = x.sort_order || 0; });
+    var d = {
+      id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      category: src.category,
+      name: src.name + '（副本）',
+      model: src.model,
+      spec: src.spec,
+      dimensions: src.dimensions,
+      material: src.material,
+      price: src.price,
+      image: src.image,
+      images: (src.images && src.images.length) ? src.images : [],
+      featured: !!src.featured,
+      on_sale: src.onSale !== false,
+      sort_order: maxSo + 1
+    };
+    sb('/rest/v1/products', { method: 'POST', body: JSON.stringify(d), prefer: 'return=representation' })
+      .then(function () { toast('已复制，可在列表中编辑'); loadProducts(); })
+      .catch(function (e) { toast(e.status === 401 || e.status === 403 ? '密码错误或无权限' : e.message); });
   }
 
   function delProduct(id) {
