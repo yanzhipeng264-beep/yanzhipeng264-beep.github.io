@@ -99,6 +99,7 @@
       <section id="tab-products">
         <div class="bar">
           <button class="btn primary" id="btnAdd">＋ 新增产品</button>
+          <button class="btn" id="btnBatch">批量添加</button>
           <select id="filterCat"><option value="">全部分类</option></select>
           <span class="hint" id="countHint"></span>
         </div>
@@ -171,8 +172,19 @@
     </div>
   </div>
 
+  <div class="modal" id="batchModal">
+    <div class="modal-panel">
+      <div class="modal-head"><h2>批量添加产品</h2><button class="x" id="batchClose">×</button></div>
+      <div class="field"><label>每行一个产品，字段用竖线 | 分隔，顺序：名称 | 分类 | 型号 | 规格 | 尺寸 | 材质 | 价格 | 图片链接</label>
+        <textarea id="batchText" rows="11" placeholder="例：&#10;实木床 1.8米 | 实木床 | KY-2001 | 1.8m×2.0m | 190×210cm | 泰国橡木 | 1680 | https://...jpg&#10;软包床 1.5米 | 软体床 | KY-2002 | 1.5m×1.9m | 160×200cm | 实木+海绵 | 1380 |"></textarea>
+      </div>
+      <div class="muted" style="margin:-6px 0 14px">可从 Excel 复制后粘贴，列之间会自动按制表符识别；图片可先留空，稍后再补。</div>
+      <button class="btn primary" style="width:100%" id="batchSubmit">开始添加</button>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
-  <script src="/js/sortable.min.js?v=20260925h"></script>
-  <script src="/js/admin.js?v=20260925h"></script>
+  <script src="/js/sortable.min.js?v=20260925i"></script>
+  <script src="/js/admin.js?v=20260925i"></script>
 </body>
 </html>

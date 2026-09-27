@@ -232,6 +232,35 @@
       .catch(function (e) { toast(e.status === 401 || e.status === 403 ? '密码错误或无权限' : e.message); });
   }
 
+  function openBatch() { $('#batchModal').classList.add('open'); $('#batchText').value = ''; }
+  function closeBatch() { $('#batchModal').classList.remove('open'); }
+  function submitBatch() {
+    var text = $('#batchText').value;
+    var lines = text.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+    if (!lines.length) { toast('请先粘贴产品数据'); return; }
+    var maxSo = 0;
+    products.forEach(function (x) { if ((x.sort_order || 0) > maxSo) maxSo = x.sort_order || 0; });
+    var items = [];
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      var cols = line.indexOf('\t') !== -1 ? line.split('\t') : line.split('|');
+      cols = cols.map(function (c) { return c.trim(); });
+      var name = cols[0] || '';
+      var price = cols[6] || '';
+      if (!name || !price) { toast('第 ' + (i + 1) + ' 行缺少名称或价格，已跳过'); continue; }
+      var img = cols[7] || '';
+      items.push({
+        id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + i,
+        name: name, category: cols[1] || '', model: cols[2] || '', spec: cols[3] || '',
+        dimensions: cols[4] || '', material: cols[5] || '', price: price,
+        image: img, images: img ? [img] : [], featured: false, on_sale: true, sort_order: maxSo + i + 1
+      });
+    }
+    if (!items.length) { toast('没有可添加的产品'); return; }
+    var tasks = items.map(function (d) { return sb('/rest/v1/products', { method: 'POST', body: JSON.stringify(d), prefer: 'return=representation' }); });
+    Promise.all(tasks).then(function () { toast('已添加 ' + items.length + ' 款产品'); closeBatch(); loadProducts(); }).catch(function (e) { toast(e.message); });
+  }
+
   function delProduct(id) {
     if (!confirm('确定删除该产品？')) return;
     sb('/rest/v1/products?id=eq.' + encodeURIComponent(id), { method: 'DELETE' })
@@ -323,6 +352,10 @@
     $('#filterCat').addEventListener('change', function () { filterCat = this.value; renderRows(); });
 
     $('#btnAdd').onclick = function () { openModal(null); };
+    $('#btnBatch').onclick = openBatch;
+    $('#batchClose').onclick = closeBatch;
+    $('#batchSubmit').onclick = submitBatch;
+    $('#batchModal').addEventListener('click', function (e) { if (e.target === this) closeBatch(); });
     $('#pmClose').onclick = closeModal;
     $('#pmSave').onclick = saveProduct;
     $('#btnUpload').onclick = function () { $('#fileInput').click(); };
