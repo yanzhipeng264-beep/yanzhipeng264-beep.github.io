@@ -190,34 +190,43 @@
   function autoCrop() {
     var img = $('#cropImg');
     if (!img || !img.naturalWidth) { toast('图片未加载'); return; }
+    var maxSide = 600;
+    var sc = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+    var cw = Math.max(1, Math.round(img.naturalWidth * sc));
+    var ch = Math.max(1, Math.round(img.naturalHeight * sc));
     var canvas = document.createElement('canvas');
-    canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+    canvas.width = cw; canvas.height = ch;
     var ctx = canvas.getContext('2d');
-    try { ctx.drawImage(img, 0, 0); } catch (e) { toast('无法分析该图片'); return; }
-    var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    var w = canvas.width, h = canvas.height;
-    function px(x, y) { var i = (y * w + x) * 4; return [data[i], data[i + 1], data[i + 2]]; }
-    var c1 = px(0, 0), c2 = px(w - 1, 0), c3 = px(0, h - 1), c4 = px(w - 1, h - 1);
-    var bgR = (c1[0] + c2[0] + c3[0] + c4[0]) / 4, bgG = (c1[1] + c2[1] + c3[1] + c4[1]) / 4, bgB = (c1[2] + c2[2] + c3[2] + c4[2]) / 4;
-    var t = 32;
-    var minX = w, minY = h, maxX = 0, maxY = 0;
-    for (var y = 0; y < h; y += 2) {
-      for (var x = 0; x < w; x += 2) {
-        var i = (y * w + x) * 4;
-        var dr = data[i] - bgR, dg = data[i + 1] - bgG, db = data[i + 2] - bgB;
-        if (dr * dr + dg * dg + db * db > t * t) {
-          if (x < minX) minX = x; if (x > maxX) maxX = x;
-          if (y < minY) minY = y; if (y > maxY) maxY = y;
-        }
-      }
+    try { ctx.drawImage(img, 0, 0, cw, ch); } catch (e) { toast('无法分析该图片'); return; }
+    var data = ctx.getImageData(0, 0, cw, ch).data;
+    var tol = 36, tol2 = tol * tol;
+    // average border color
+    var sr = 0, sg = 0, sb = 0, bn = 0;
+    for (var x = 0; x < cw; x++) { for (var k = 0; k < 2; k++) { var y = k ? ch - 1 : 0; var i = (y * cw + x) * 4; sr += data[i]; sg += data[i + 1]; sb += data[i + 2]; bn++; } }
+    for (var y = 0; y < ch; y++) { for (var k = 0; k < 2; k++) { var x = k ? cw - 1 : 0; var i = (y * cw + x) * 4; sr += data[i]; sg += data[i + 1]; sb += data[i + 2]; bn++; } }
+    var br = sr / bn, bg = sg / bn, bb = sb / bn;
+    var visited = new Uint8Array(cw * ch);
+    var q = [];
+    function seed(x, y) { var idx = y * cw + x; if (visited[idx]) return; var i = idx * 4; var dr = data[i] - br, dg = data[i + 1] - bg, db = data[i + 2] - bb; if (dr * dr + dg * dg + db * db <= tol2) { visited[idx] = 1; q.push(x, y); } }
+    for (var x = 0; x < cw; x++) { seed(x, 0); seed(x, ch - 1); }
+    for (var y = 0; y < ch; y++) { seed(0, y); seed(cw - 1, y); }
+    var head = 0;
+    while (head < q.length) {
+      var x = q[head++], y = q[head++];
+      var i = (y * cw + x) * 4, r = data[i], g = data[i + 1], b = data[i + 2];
+      var nx, ny, ni;
+      if (x > 0) { nx = x - 1; ny = y; ni = ny * cw + nx; if (!visited[ni]) { var dr = data[ni * 4] - r, dg = data[ni * 4 + 1] - g, db = data[ni * 4 + 2] - b; if (dr * dr + dg * dg + db * db <= tol2) { visited[ni] = 1; q.push(nx, ny); } } }
+      if (x < cw - 1) { nx = x + 1; ny = y; ni = ny * cw + nx; if (!visited[ni]) { var dr = data[ni * 4] - r, dg = data[ni * 4 + 1] - g, db = data[ni * 4 + 2] - b; if (dr * dr + dg * dg + db * db <= tol2) { visited[ni] = 1; q.push(nx, ny); } } }
+      if (y > 0) { nx = x; ny = y - 1; ni = ny * cw + nx; if (!visited[ni]) { var dr = data[ni * 4] - r, dg = data[ni * 4 + 1] - g, db = data[ni * 4 + 2] - b; if (dr * dr + dg * dg + db * db <= tol2) { visited[ni] = 1; q.push(nx, ny); } } }
+      if (y < ch - 1) { nx = x; ny = y + 1; ni = ny * cw + nx; if (!visited[ni]) { var dr = data[ni * 4] - r, dg = data[ni * 4 + 1] - g, db = data[ni * 4 + 2] - b; if (dr * dr + dg * dg + db * db <= tol2) { visited[ni] = 1; q.push(nx, ny); } } }
     }
-    if (maxX <= minX || maxY <= minY) { toast('未检测到产品区域，请手动框选'); return; }
-    var m = Math.max(8, Math.round((maxX - minX) * 0.04));
-    minX = Math.max(0, minX - m); minY = Math.max(0, minY - m);
-    maxX = Math.min(w, maxX + m); maxY = Math.min(h, maxY + m);
+    var minX = cw, minY = ch, maxX = 0, maxY = 0, fg = 0;
+    for (var y = 0; y < ch; y++) for (var x = 0; x < cw; x++) { var idx = y * cw + x; if (!visited[idx]) { fg++; if (x < minX) minX = x; if (x > maxX) maxX = x; if (y < minY) minY = y; if (y > maxY) maxY = y; } }
+    if (fg === 0 || maxX <= minX || maxY <= minY) { toast('未检测到产品区域，请手动框选'); return; }
+    var fx = img.naturalWidth / cw, fy = img.naturalHeight / ch;
     var holder = $('#cropHolder').getBoundingClientRect();
-    var sx = holder.width / w, sy = holder.height / h;
-    setCropSel(minX * sx, minY * sy, maxX * sx, maxY * sy);
+    var sx = holder.width / img.naturalWidth, sy = holder.height / img.naturalHeight;
+    setCropSel(minX * fx * sx, minY * fy * sy, maxX * fx * sx, maxY * fy * sy);
     toast('已自动框选，可拖动调整后再保存');
   }
 
