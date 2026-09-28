@@ -187,6 +187,40 @@
   function closeCrop() { $('#cropbox').classList.remove('open'); }
   function resetCropSel() { var sel = $('#cropSel'); sel.style.display = 'none'; sel.style.left = '0px'; sel.style.top = '0px'; sel.style.width = '0px'; sel.style.height = '0px'; }
   function setCropSel(x1, y1, x2, y2) { var sel = $('#cropSel'); sel.style.left = Math.max(0, Math.min(x1, x2)) + 'px'; sel.style.top = Math.max(0, Math.min(y1, y2)) + 'px'; sel.style.width = Math.abs(x2 - x1) + 'px'; sel.style.height = Math.abs(y2 - y1) + 'px'; sel.style.display = 'block'; }
+  function autoCrop() {
+    var img = $('#cropImg');
+    if (!img || !img.naturalWidth) { toast('图片未加载'); return; }
+    var canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+    var ctx = canvas.getContext('2d');
+    try { ctx.drawImage(img, 0, 0); } catch (e) { toast('无法分析该图片'); return; }
+    var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    var w = canvas.width, h = canvas.height;
+    function px(x, y) { var i = (y * w + x) * 4; return [data[i], data[i + 1], data[i + 2]]; }
+    var c1 = px(0, 0), c2 = px(w - 1, 0), c3 = px(0, h - 1), c4 = px(w - 1, h - 1);
+    var bgR = (c1[0] + c2[0] + c3[0] + c4[0]) / 4, bgG = (c1[1] + c2[1] + c3[1] + c4[1]) / 4, bgB = (c1[2] + c2[2] + c3[2] + c4[2]) / 4;
+    var t = 32;
+    var minX = w, minY = h, maxX = 0, maxY = 0;
+    for (var y = 0; y < h; y += 2) {
+      for (var x = 0; x < w; x += 2) {
+        var i = (y * w + x) * 4;
+        var dr = data[i] - bgR, dg = data[i + 1] - bgG, db = data[i + 2] - bgB;
+        if (dr * dr + dg * dg + db * db > t * t) {
+          if (x < minX) minX = x; if (x > maxX) maxX = x;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+        }
+      }
+    }
+    if (maxX <= minX || maxY <= minY) { toast('未检测到产品区域，请手动框选'); return; }
+    var m = Math.max(8, Math.round((maxX - minX) * 0.04));
+    minX = Math.max(0, minX - m); minY = Math.max(0, minY - m);
+    maxX = Math.min(w, maxX + m); maxY = Math.min(h, maxY + m);
+    var holder = $('#cropHolder').getBoundingClientRect();
+    var sx = holder.width / w, sy = holder.height / h;
+    setCropSel(minX * sx, minY * sy, maxX * sx, maxY * sy);
+    toast('已自动框选，可拖动调整后再保存');
+  }
+
   function cropSave() {
     var img = $('#cropImg');
     var sel = $('#cropSel');
@@ -422,6 +456,7 @@
     $('#lbCrop').onclick = function () { if (currentLbUrl) openCrop(currentLbUrl); };
     $('#cropCancel').onclick = closeCrop;
     $('#cropSave').onclick = cropSave;
+    $('#cropAuto').onclick = autoCrop;
     (function () {
       var holder = $('#cropHolder');
       holder.addEventListener('pointerdown', function (e) { e.preventDefault(); var r = holder.getBoundingClientRect(); cropState.dragging = true; cropState.startX = e.clientX - r.left; cropState.startY = e.clientY - r.top; setCropSel(cropState.startX, cropState.startY, cropState.startX, cropState.startY); try { holder.setPointerCapture(e.pointerId); } catch (err) {} });
