@@ -188,9 +188,9 @@
   function resetCropSel() { var sel = $('#cropSel'); sel.style.display = 'none'; sel.style.left = '0px'; sel.style.top = '0px'; sel.style.width = '0px'; sel.style.height = '0px'; }
   function setCropSel(x1, y1, x2, y2) { var sel = $('#cropSel'); sel.style.left = Math.max(0, Math.min(x1, x2)) + 'px'; sel.style.top = Math.max(0, Math.min(y1, y2)) + 'px'; sel.style.width = Math.abs(x2 - x1) + 'px'; sel.style.height = Math.abs(y2 - y1) + 'px'; sel.style.display = 'block'; }
   function cropSave() {
-    var img = cropState.img;
+    var img = $('#cropImg');
     var sel = $('#cropSel');
-    if (!img || sel.style.display === 'none') { toast('请先拖动框选要裁剪的区域'); return; }
+    if (!img || !img.naturalWidth || sel.style.display === 'none') { toast('请先拖动框选要裁剪的区域'); return; }
     var r = $('#cropHolder').getBoundingClientRect();
     var l = parseFloat(sel.style.left), t = parseFloat(sel.style.top), w = parseFloat(sel.style.width), h = parseFloat(sel.style.height);
     if (w < 10 || h < 10) { toast('选区太小'); return; }
