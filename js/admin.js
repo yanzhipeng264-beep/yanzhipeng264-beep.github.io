@@ -158,7 +158,9 @@
   }
 
   var lbZoom = 1;
+  var currentLbUrl = '';
   function openLightbox(url) {
+    currentLbUrl = url;
     lbZoom = 1;
     var img = $('#lbImg');
     img.src = url;
@@ -172,6 +174,51 @@
   function lbZoomOut() { if (lbZoom > 1) { lbZoom -= 0.5; applyLbZoom(); } }
   function lbReset() { lbZoom = 1; applyLbZoom(); }
   function applyLbZoom() { var img = $('#lbImg'); img.style.maxWidth = (92 * lbZoom) + 'vw'; img.style.maxHeight = (92 * lbZoom) + 'vh'; }
+
+  var cropState = { img: null, dragging: false, startX: 0, startY: 0 };
+  function openCrop(url) {
+    closeLightbox();
+    var img = $('#cropImg');
+    img.crossOrigin = 'anonymous';
+    img.onload = function () { cropState.img = img; resetCropSel(); };
+    img.src = url;
+    $('#cropbox').classList.add('open');
+  }
+  function closeCrop() { $('#cropbox').classList.remove('open'); }
+  function resetCropSel() { var sel = $('#cropSel'); sel.style.display = 'none'; sel.style.left = '0px'; sel.style.top = '0px'; sel.style.width = '0px'; sel.style.height = '0px'; }
+  function setCropSel(x1, y1, x2, y2) { var sel = $('#cropSel'); sel.style.left = Math.max(0, Math.min(x1, x2)) + 'px'; sel.style.top = Math.max(0, Math.min(y1, y2)) + 'px'; sel.style.width = Math.abs(x2 - x1) + 'px'; sel.style.height = Math.abs(y2 - y1) + 'px'; sel.style.display = 'block'; }
+  function cropSave() {
+    var img = cropState.img;
+    var sel = $('#cropSel');
+    if (!img || sel.style.display === 'none') { toast('请先拖动框选要裁剪的区域'); return; }
+    var r = $('#cropHolder').getBoundingClientRect();
+    var l = parseFloat(sel.style.left), t = parseFloat(sel.style.top), w = parseFloat(sel.style.width), h = parseFloat(sel.style.height);
+    if (w < 10 || h < 10) { toast('选区太小'); return; }
+    var sx = img.naturalWidth / r.width, sy = img.naturalHeight / r.height;
+    var cx = Math.round(l * sx), cy = Math.round(t * sy), cw = Math.round(w * sx), ch = Math.round(h * sy);
+    try {
+      var canvas = document.createElement('canvas'); canvas.width = cw; canvas.height = ch;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, cx, cy, cw, ch, 0, 0, cw, ch);
+      canvas.toBlob(function (blob) {
+        if (!blob) { toast('裁剪失败（图片可能受跨域保护）'); return; }
+        uploadBlob(blob, 'crop_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6) + '.jpg');
+      }, 'image/jpeg', 0.92);
+    } catch (err) { toast('裁剪失败：' + err.message); }
+  }
+  function uploadBlob(blob, fname) {
+    fetch(SUPABASE_URL + '/storage/v1/object/product-images/' + fname, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'x-admin-password': pass(), 'Content-Type': 'image/jpeg' },
+      body: blob
+    }).then(function (r) {
+      if (!r.ok) throw new Error('上传失败 ' + r.status);
+      var url = SUPABASE_URL + '/storage/v1/object/public/product-images/' + fname;
+      addImg(url);
+      closeCrop();
+      toast('已裁剪并添加到图片列表');
+    }).catch(function (e) { toast(e.message); });
+  }
 
   function openModal(id) {
     editingId = id || null;
@@ -371,6 +418,16 @@
     $('#filterCat').addEventListener('change', function () { filterCat = this.value; renderRows(); });
 
     $('#btnAdd').onclick = function () { openModal(null); };
+    $('#lbClose').onclick = closeLightbox;
+    $('#lbCrop').onclick = function () { if (currentLbUrl) openCrop(currentLbUrl); };
+    $('#cropCancel').onclick = closeCrop;
+    $('#cropSave').onclick = cropSave;
+    (function () {
+      var holder = $('#cropHolder');
+      holder.addEventListener('pointerdown', function (e) { e.preventDefault(); var r = holder.getBoundingClientRect(); cropState.dragging = true; cropState.startX = e.clientX - r.left; cropState.startY = e.clientY - r.top; setCropSel(cropState.startX, cropState.startY, cropState.startX, cropState.startY); try { holder.setPointerCapture(e.pointerId); } catch (err) {} });
+      holder.addEventListener('pointermove', function (e) { if (!cropState.dragging) return; var r = holder.getBoundingClientRect(); var x = Math.max(0, Math.min(r.width, e.clientX - r.left)); var y = Math.max(0, Math.min(r.height, e.clientY - r.top)); setCropSel(cropState.startX, cropState.startY, x, y); });
+      holder.addEventListener('pointerup', function () { cropState.dragging = false; });
+    })();
     $('#lbClose').onclick = closeLightbox;
     $('#lbZoomIn').onclick = lbZoomIn;
     $('#lbZoomOut').onclick = lbZoomOut;

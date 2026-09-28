@@ -52,6 +52,15 @@
   .login h1{font-size:18px;margin-bottom:4px;}
   .login .sub{color:var(--muted);font-size:12px;margin-bottom:18px;}
   .hidden{display:none !important;}
+  .cropbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;display:none;flex-direction:column;}
+  .cropbox.open{display:flex;}
+  .crop-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;color:#fff;flex:none;}
+  .crop-title{font-size:13px;opacity:.9;}
+  .crop-stage{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:10px;}
+  .crop-holder{position:relative;display:inline-block;line-height:0;cursor:crosshair;touch-action:none;}
+  #cropImg{max-width:92vw;max-height:74vh;display:block;}
+  .crop-sel{position:absolute;border:2px dashed #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.55);pointer-events:none;}
+  #lbCrop{padding:0 16px;width:auto;border-radius:21px;font-size:14px;}
   .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:400;display:none;}
   .lightbox.open{display:block;}
   .lb-close{position:fixed;right:16px;top:14px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;}
@@ -192,18 +201,28 @@
     </div>
   </div>
 
+  <div class="cropbox" id="cropbox">
+    <div class="crop-top">
+      <button class="btn small" id="cropCancel">取消</button>
+      <div class="crop-title">拖动框选要裁剪的区域</div>
+      <button class="btn small primary" id="cropSave">保存裁剪</button>
+    </div>
+    <div class="crop-stage" id="cropStage"><div class="crop-holder" id="cropHolder"><img id="cropImg" src="" alt=""><div class="crop-sel" id="cropSel" style="display:none"></div></div></div>
+  </div>
+
   <div class="lightbox" id="lightbox">
     <div class="lb-close" id="lbClose" title="关闭">×</div>
     <div class="lb-tools">
       <button class="lb-btn" id="lbZoomOut" title="缩小">−</button>
       <button class="lb-btn" id="lbZoomIn" title="放大">＋</button>
       <button class="lb-btn" id="lbReset" title="复位">1:1</button>
+      <button class="lb-btn" id="lbCrop" title="裁剪">裁剪</button>
     </div>
     <div class="lb-wrap" id="lbWrap"><div class="lb-inner"><img id="lbImg" src="" alt=""></div></div>
   </div>
 
   <div class="toast" id="toast"></div>
-  <script src="/js/sortable.min.js?v=20260925j"></script>
-  <script src="/js/admin.js?v=20260925j"></script>
+  <script src="/js/sortable.min.js?v=20260925k"></script>
+  <script src="/js/admin.js?v=20260925k"></script>
 </body>
 </html>
