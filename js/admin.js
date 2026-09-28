@@ -135,7 +135,7 @@
     if (!imgList.length) { box.innerHTML = '<div class="muted">还没有图片，可上传或粘贴链接。</div>'; return; }
     box.innerHTML = imgList.map(function (url, i) {
       return '<div class="img-item">' +
-        '<img src="' + esc(url) + '" alt="" onerror="this.style.opacity=.3">' +
+        '<img src="' + esc(url) + '" class="img-view" alt="" onerror="this.style.opacity=.3">' +
         (i === 0 ? '<div class="img-cover">封面</div>' : '') +
         '<button type="button" class="img-del" data-idx="' + i + '" title="删除">×</button>' +
         (i > 0 ? '<button type="button" class="img-up" data-idx="' + i + '" title="设为封面">↑</button>' : '') +
@@ -147,12 +147,31 @@
     box.querySelectorAll('.img-up').forEach(function (b) {
       b.onclick = function () { var idx = parseInt(b.getAttribute('data-idx'), 10); var u = imgList.splice(idx, 1)[0]; imgList.unshift(u); renderImgs(); };
     });
+    box.querySelectorAll('.img-view').forEach(function (img) {
+      img.onclick = function () { openLightbox(img.getAttribute('src')); };
+    });
   }
   function addImg(url) {
     url = (url || '').trim();
     if (!url) return;
     if (imgList.indexOf(url) === -1) { imgList.push(url); renderImgs(); }
   }
+
+  var lbZoom = 1;
+  function openLightbox(url) {
+    lbZoom = 1;
+    var img = $('#lbImg');
+    img.src = url;
+    img.style.maxWidth = '92vw';
+    img.style.maxHeight = '92vh';
+    $('#lightbox').classList.add('open');
+    $('#lbWrap').scrollTop = 0; $('#lbWrap').scrollLeft = 0;
+  }
+  function closeLightbox() { $('#lightbox').classList.remove('open'); }
+  function lbZoomIn() { if (lbZoom < 5) { lbZoom += 0.5; applyLbZoom(); } }
+  function lbZoomOut() { if (lbZoom > 1) { lbZoom -= 0.5; applyLbZoom(); } }
+  function lbReset() { lbZoom = 1; applyLbZoom(); }
+  function applyLbZoom() { var img = $('#lbImg'); img.style.maxWidth = (92 * lbZoom) + 'vw'; img.style.maxHeight = (92 * lbZoom) + 'vh'; }
 
   function openModal(id) {
     editingId = id || null;
@@ -352,6 +371,11 @@
     $('#filterCat').addEventListener('change', function () { filterCat = this.value; renderRows(); });
 
     $('#btnAdd').onclick = function () { openModal(null); };
+    $('#lbClose').onclick = closeLightbox;
+    $('#lbZoomIn').onclick = lbZoomIn;
+    $('#lbZoomOut').onclick = lbZoomOut;
+    $('#lbReset').onclick = lbReset;
+    $('#lightbox').addEventListener('click', function (e) { if (e.target === this) closeLightbox(); });
     $('#btnBatch').onclick = openBatch;
     $('#batchClose').onclick = closeBatch;
     $('#batchSubmit').onclick = submitBatch;

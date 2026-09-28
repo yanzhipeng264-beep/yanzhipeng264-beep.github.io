@@ -52,6 +52,15 @@
   .login h1{font-size:18px;margin-bottom:4px;}
   .login .sub{color:var(--muted);font-size:12px;margin-bottom:18px;}
   .hidden{display:none !important;}
+  .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:400;display:none;}
+  .lightbox.open{display:block;}
+  .lb-close{position:fixed;right:16px;top:14px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;}
+  .lb-tools{position:fixed;left:16px;bottom:16px;display:flex;gap:8px;z-index:3;}
+  .lb-btn{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:20px;font-weight:700;border:none;cursor:pointer;}
+  .lb-wrap{position:absolute;inset:0;overflow:auto;}
+  .lb-inner{display:flex;align-items:center;justify-content:center;min-width:100%;min-height:100%;}
+  #lbImg{max-width:92vw;max-height:92vh;transition:max-width .2s,max-height .2s;}
+  .img-view{cursor:zoom-in;}
   #filterCat{appearance:none;-webkit-appearance:none;border:1px solid #e7c6c6;border-radius:20px;padding:8px 38px 8px 16px;font-size:13px;font-weight:600;background:#fdf4f4 url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z' fill='%23c48080'/%3E%3C/svg%3E") no-repeat right 12px center;background-size:14px;color:#a85555;cursor:pointer;box-shadow:0 2px 8px rgba(198,40,40,.07);outline:none;transition:border-color .15s,box-shadow .15s;}
   #filterCat:hover{border-color:#dba9a9;}
   #filterCat:focus{border-color:#c97f7f;box-shadow:0 0 0 3px rgba(198,40,40,.10);}
@@ -183,8 +192,18 @@
     </div>
   </div>
 
+  <div class="lightbox" id="lightbox">
+    <div class="lb-close" id="lbClose" title="关闭">×</div>
+    <div class="lb-tools">
+      <button class="lb-btn" id="lbZoomOut" title="缩小">−</button>
+      <button class="lb-btn" id="lbZoomIn" title="放大">＋</button>
+      <button class="lb-btn" id="lbReset" title="复位">1:1</button>
+    </div>
+    <div class="lb-wrap" id="lbWrap"><div class="lb-inner"><img id="lbImg" src="" alt=""></div></div>
+  </div>
+
   <div class="toast" id="toast"></div>
-  <script src="/js/sortable.min.js?v=20260925i"></script>
-  <script src="/js/admin.js?v=20260925i"></script>
+  <script src="/js/sortable.min.js?v=20260925j"></script>
+  <script src="/js/admin.js?v=20260925j"></script>
 </body>
 </html>
