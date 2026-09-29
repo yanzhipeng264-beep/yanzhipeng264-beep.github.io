@@ -171,7 +171,7 @@ input{font-family:inherit;}
 .item-lines{display:flex;flex-direction:column;gap:2px;font-size:13px;color:#6d5d49;}
 .btn-coupon{background:rgba(255,255,255,.1);color:#ffe08a;border:1.5px dashed #ffe08a;}
 .coupon-title{font-size:20px;font-weight:800;text-align:center;margin-bottom:2px;}
-.coupon-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:14px;}
+.coupon-sub{font-size:17px;font-weight:700;color:#c0392b;text-align:center;margin-bottom:14px;line-height:1.5;}
 .coupon-list{display:flex;flex-direction:column;gap:10px;}
 .coupon-card{display:flex;align-items:stretch;border:1px dashed #e0a800;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,#fff8e6,#fffdf4);}
 .coupon-main{flex:1;display:flex;align-items:center;gap:12px;padding:12px;}
