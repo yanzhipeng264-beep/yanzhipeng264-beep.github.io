@@ -449,6 +449,7 @@
       $('#s_notice').value = s.notice || '';
       $('#s_values').value = (s.core_values || []).join('\n');
       $('#s_catorder').value = (s.category_order || []).join('\n');
+      $('#s_coupons').value = (s.coupons || []).map(function (c) { return (c.title || '') + ' | ' + (c.amount || '') + ' | ' + (c.condition || ''); }).join('\n');
     });
   }
   function saveSettings() {
@@ -462,7 +463,8 @@
       wechat: $('#s_wechat').value.trim(),
       notice: $('#s_notice').value.trim(),
       core_values: $('#s_values').value.split('\n').map(function (v) { return v.trim(); }).filter(Boolean),
-      category_order: $('#s_catorder').value.split('\n').map(function (v) { return v.trim(); }).filter(Boolean)
+      category_order: $('#s_catorder').value.split('\n').map(function (v) { return v.trim(); }).filter(Boolean),
+      coupons: $('#s_coupons').value.split('\n').map(function (l) { var p = l.split('|'); return { title: (p[0] || '').trim(), amount: (p[1] || '').trim(), condition: (p[2] || '').trim() }; }).filter(function (c) { return c.title || c.amount || c.condition; })
     };
     sb('/rest/v1/settings', { method: 'POST', body: JSON.stringify(d), prefer: 'resolution=merge-duplicates,return=representation' })
       .then(function () { toast('门店设置已保存'); })

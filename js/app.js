@@ -97,6 +97,19 @@
     });
   }
 
+  function renderCoupons() {
+    var coupons = (state.settings && state.settings.coupons) || [];
+    if (!coupons.length) { $('#couponList').innerHTML = '<div class="coupon-sub">暂无团购券</div>'; return; }
+    $('#couponList').innerHTML = coupons.map(function (c) {
+      c = c || {};
+      return '<div class="coupon-card">' +
+        '<div class="coupon-main"><div class="coupon-amount">' + esc(c.amount || '') + '</div>' +
+        '<div class="coupon-info"><div class="coupon-name">' + esc(c.title || '团购券') + '</div>' +
+        '<div class="coupon-cond">' + esc(c.condition || '') + '</div></div></div>' +
+        '<div class="coupon-use">立即使用</div></div>';
+    }).join('');
+  }
+
   function cardHtml(p) {
     return '' +
       '<article class="card" data-id="' + esc(p.id) + '">' +
@@ -231,7 +244,8 @@
           wechat: r.wechat || '',
           notice: r.notice || '',
           values: (r.core_values && r.core_values.length) ? r.core_values : [],
-          categoryOrder: (r.category_order && r.category_order.length) ? r.category_order : []
+          categoryOrder: (r.category_order && r.category_order.length) ? r.category_order : [],
+          coupons: (r.coupons && r.coupons.length) ? r.coupons : []
         };
       }),
       sb('/rest/v1/products?select=*&order=sort_order.asc,created_at.asc').then(function (rows) {
@@ -248,6 +262,8 @@
 
   function init() {
     $('#detailModal').querySelectorAll('[data-close]').forEach(function (el) { el.addEventListener('click', closeDetail); });
+    $('#btnCoupon').addEventListener('click', function () { renderCoupons(); $('#couponModal').classList.add('open'); document.body.style.overflow = 'hidden'; });
+    $('#couponModal').querySelectorAll('[data-close]').forEach(function (el) { el.addEventListener('click', function () { $('#couponModal').classList.remove('open'); document.body.style.overflow = ''; }); });
     $('#btnCopy').addEventListener('click', function () {
       var addr = (state.settings || {}).address || '';
       if (!addr) { toast('暂未填写地址'); return; }
@@ -272,7 +288,7 @@
       });
     });
     loadData().then(function () {
-      renderSettings(); renderCategories(); renderProducts();
+      renderSettings(); renderCategories(); renderProducts(); renderCoupons();
     }).catch(function (e) { toast('加载失败，请刷新重试'); });
   }
 

@@ -34,6 +34,7 @@
         <svg viewBox="0 0 24 24" class="ic"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
         一键导航
       </a>
+      <button class="btn btn-coupon" id="btnCoupon" type="button">🎫 优惠</button>
     </div>
   </section>
 
@@ -101,6 +102,20 @@
     <p>© <span id="year"></span> <span id="footName">康艺省钱家具超市（河源店）</span></p>
     <p class="foot-slogan">为河源人民省钱</p>
   </footer>
+
+  <div class="modal" id="couponModal" aria-hidden="true">
+    <div class="modal-mask" data-close></div>
+    <div class="modal-panel">
+      <button class="modal-close" data-close aria-label="关闭">×</button>
+      <div class="modal-scroll">
+        <div class="modal-body">
+          <div class="coupon-title">🎫 团购券</div>
+          <div class="coupon-sub">到店出示即可使用</div>
+          <div class="coupon-list" id="couponList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="modal" id="detailModal" aria-hidden="true">
     <div class="modal-mask" data-close></div>
