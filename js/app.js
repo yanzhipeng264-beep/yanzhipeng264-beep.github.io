@@ -106,7 +106,7 @@
         '<div class="coupon-main"><div class="coupon-amount">' + esc(c.amount || '') + '</div>' +
         '<div class="coupon-info"><div class="coupon-name">' + esc(c.title || '团购券') + '</div>' +
         '<div class="coupon-cond">' + esc(c.condition || '') + '</div></div></div>' +
-        '<div class="coupon-use">立即使用</div></div>';
+        '<div class="coupon-use">抖音购买</div></div>';
     }).join('');
   }
 
