@@ -13,6 +13,7 @@
   var sortable = null;
   var filterCat = '';
   var imgList = [];
+  var itemList = [];
 
   function pass() { return localStorage.getItem(PASS_KEY) || ''; }
   function setPass(p) { localStorage.setItem(PASS_KEY, p); }
@@ -278,10 +279,43 @@
     $('#pm_imgurl').value = '';
     $('#pm_featured').checked = p ? !!p.featured : false;
     $('#pm_onSale').checked = p ? p.onSale !== false : true;
+    itemList = p ? ((p.items && p.items.length) ? p.items.slice() : []) : [];
+    renderItems();
     renderImgs();
     $('#prodModal').classList.add('open');
   }
   function closeModal() { $('#prodModal').classList.remove('open'); }
+
+  function renderItems() {
+    var box = $('#pm_items');
+    if (!itemList.length) { box.innerHTML = '<div class="muted">暂无组合，普通产品可跳过此项。</div>'; return; }
+    box.innerHTML = itemList.map(function (it, i) {
+      it = it || {};
+      return '<div class="item-card" data-i="' + i + '">' +
+        '<div class="row2"><input class="it-name" placeholder="名称（如 茶几）" value="' + esc(it.name || '') + '"><input class="it-model" placeholder="型号" value="' + esc(it.model || '') + '"></div>' +
+        '<div class="row2"><input class="it-dim" placeholder="尺寸" value="' + esc(it.dimensions || '') + '"><input class="it-price" placeholder="价格" value="' + esc(it.price || '') + '"></div>' +
+        '<input class="it-mat" placeholder="材质" value="' + esc(it.material || '') + '">' +
+        '<button type="button" class="item-del" data-i="' + i + '">×</button>' +
+      '</div>';
+    }).join('');
+    box.querySelectorAll('.item-del').forEach(function (b) {
+      b.onclick = function () { itemList.splice(parseInt(b.getAttribute('data-i'), 10), 1); renderItems(); };
+    });
+  }
+  function collectItems() {
+    var items = [];
+    document.querySelectorAll('#pm_items .item-card').forEach(function (card) {
+      var it = {
+        name: card.querySelector('.it-name').value.trim(),
+        model: card.querySelector('.it-model').value.trim(),
+        dimensions: card.querySelector('.it-dim').value.trim(),
+        material: card.querySelector('.it-mat').value.trim(),
+        price: card.querySelector('.it-price').value.trim()
+      };
+      if (it.name || it.model || it.price) items.push(it);
+    });
+    return items;
+  }
 
   function saveProduct() {
     var name = $('#pm_name').value.trim();
@@ -298,9 +332,15 @@
       material: $('#pm_material').value.trim(),
       image: imgList[0] || '',
       images: imgList,
+      items: collectItems(),
       featured: $('#pm_featured').checked,
       on_sale: $('#pm_onSale').checked
     };
+    if (d.items && d.items.length) {
+      var total = 0;
+      d.items.forEach(function (it) { total += parseFloat(it.price) || 0; });
+      d.price = String(total);
+    }
     var p;
     if (editingId) {
       p = sb('/rest/v1/products?id=eq.' + encodeURIComponent(editingId), { method: 'PATCH', body: JSON.stringify(d), prefer: 'return=representation' });
@@ -486,6 +526,7 @@
     $('#btnUpload').onclick = function () { $('#fileInput').click(); };
     $('#fileInput').onchange = function () { if (this.files && this.files[0]) uploadImage(this.files[0]); };
     $('#btnAddUrl').onclick = function () { addImg($('#pm_imgurl').value); $('#pm_imgurl').value = ''; };
+    $('#btnAddItem').onclick = function () { itemList.push({ name: '', model: '', dimensions: '', material: '', price: '' }); renderItems(); };
     $('#btnSaveSettings').onclick = saveSettings;
     $('#prodModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
 

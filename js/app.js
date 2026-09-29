@@ -155,6 +155,25 @@
     $('#mSpec').textContent = p.spec || '—';
     $('#mDim').textContent = p.dimensions || '—';
     $('#mMat').textContent = p.material || '—';
+    var items = p.items || [];
+    if (items.length) {
+      $('#mSpecTable').style.display = 'none';
+      $('#mItems').style.display = 'block';
+      $('#mItems').innerHTML = items.map(function (it, i) {
+        it = it || {};
+        return '<div class="item-block">' +
+          '<div class="item-title">' + esc(it.name || ('第' + (i + 1) + '件')) + '<span class="item-price">¥' + esc(it.price || '') + '</span></div>' +
+          '<div class="item-lines">' +
+            (it.model ? '<span>型号：' + esc(it.model) + '</span>' : '') +
+            (it.dimensions ? '<span>尺寸：' + esc(it.dimensions) + '</span>' : '') +
+            (it.material ? '<span>材质：' + esc(it.material) + '</span>' : '') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    } else {
+      $('#mSpecTable').style.display = '';
+      $('#mItems').style.display = 'none';
+    }
     var v = (p.views || 0) + 1;
     p.views = v;
     $('#mViews').textContent = '👁 ' + v + ' 次浏览';
@@ -215,7 +234,7 @@
           return {
             id: p.id, category: p.category || '', name: p.name || '', model: p.model || '',
             spec: p.spec || '', dimensions: p.dimensions || '', material: p.material || '',
-            price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false, views: p.views || 0, images: (p.images && p.images.length) ? p.images : []
+            price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false, views: p.views || 0, images: (p.images && p.images.length) ? p.images : [], items: (p.items && p.items.length) ? p.items : []
           };
         });
       })

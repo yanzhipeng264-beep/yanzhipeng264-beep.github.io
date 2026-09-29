@@ -52,6 +52,12 @@
   .login h1{font-size:18px;margin-bottom:4px;}
   .login .sub{color:var(--muted);font-size:12px;margin-bottom:18px;}
   .hidden{display:none !important;}
+  .item-card{position:relative;border:1px solid var(--line);border-radius:10px;padding:8px 30px 8px 8px;margin-bottom:8px;background:#faf7f2;}
+  .item-card .row2{margin-bottom:6px;}
+  .item-card input{margin-bottom:0;}
+  .item-card .it-mat{margin-top:6px;}
+  .item-card .item-del{position:absolute;right:6px;top:6px;width:22px;height:22px;border-radius:50%;background:#eee;border:none;cursor:pointer;font-size:14px;line-height:1;color:#666;}
+  .items-list .muted{margin-bottom:6px;}
   .cropbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;display:none;flex-direction:column;}
   .cropbox.open{display:flex;}
   .crop-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;color:#fff;flex:none;}
@@ -182,6 +188,10 @@
           <button class="btn small" id="btnAddUrl">添加链接</button>
         </div>
       </div>
+            <div class="field"><label>组合产品（选填，如「茶几 + 电视柜」，可添加多件）</label>
+        <div id="pm_items" class="items-list"></div>
+        <button class="btn small" id="btnAddItem" style="margin-top:6px">＋ 添加一件</button>
+      </div>
       <div class="field" style="display:flex;gap:16px">
         <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="pm_featured"> 推荐置顶</label>
         <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="pm_onSale" checked> 在售</label>
@@ -223,7 +233,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
-  <script src="/js/sortable.min.js?v=20260925o"></script>
-  <script src="/js/admin.js?v=20260925o"></script>
+  <script src="/js/sortable.min.js?v=20260925p"></script>
+  <script src="/js/admin.js?v=20260925p"></script>
 </body>
 </html>
