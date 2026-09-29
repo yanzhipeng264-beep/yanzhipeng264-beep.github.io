@@ -530,6 +530,14 @@
     $('#btnAddItem').onclick = function () { itemList.push({ name: '', model: '', dimensions: '', material: '', price: '' }); renderItems(); };
     $('#btnSaveSettings').onclick = saveSettings;
     $('#prodModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+    $('#prodModal').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && $('#prodModal').classList.contains('open')) {
+        var tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : '';
+        if (tag === 'TEXTAREA') return;
+        e.preventDefault();
+        saveProduct();
+      }
+    });
 
     initSortable();
   }
