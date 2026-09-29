@@ -162,7 +162,7 @@
       $('#mItems').innerHTML = items.map(function (it, i) {
         it = it || {};
         return '<div class="item-block">' +
-          '<div class="item-title">' + esc(it.name || ('第' + (i + 1) + '件')) + '<span class="item-price">¥' + esc(it.price || '') + '</span></div>' +
+          '<div class="item-title">' + esc(it.name || ('第' + (i + 1) + '件')) + (it.price ? '<span class="item-price">¥' + esc(it.price) + '</span>' : '') + '</div>' +
           '<div class="item-lines">' +
             (it.model ? '<span>型号：' + esc(it.model) + '</span>' : '') +
             (it.dimensions ? '<span>尺寸：' + esc(it.dimensions) + '</span>' : '') +
