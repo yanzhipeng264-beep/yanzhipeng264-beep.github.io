@@ -157,9 +157,14 @@
     $('#mMat').textContent = p.material || '—';
     var items = p.items || [];
     if (items.length) {
+      var parts = [];
+      if (p.model || p.spec || p.dimensions || p.material || p.price) {
+        parts.push({ name: p.spec || '主件', model: p.model, dimensions: p.dimensions, material: p.material, price: p.price });
+      }
+      items.forEach(function (it) { parts.push(it); });
       $('#mSpecTable').style.display = 'none';
       $('#mItems').style.display = 'block';
-      $('#mItems').innerHTML = items.map(function (it, i) {
+      $('#mItems').innerHTML = parts.map(function (it, i) {
         it = it || {};
         return '<div class="item-block">' +
           '<div class="item-title">' + esc(it.name || ('第' + (i + 1) + '件')) + (it.price ? '<span class="item-price">¥' + esc(it.price) + '</span>' : '') + '</div>' +
