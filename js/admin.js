@@ -4,7 +4,7 @@
   var SUPABASE_URL = 'https://bettcoexauuhqlngmggp.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJldHRjb2V4YXV1aHFsbmdtZ2dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyODcwNzIsImV4cCI6MjEwNTg2MzA3Mn0.gshK5D8qn498gUz23pQZEg2pWRwek8T1sdwg1lTSYn4';
 
-  var BASE_CATS = ['实木床','软体床','餐桌','实木沙发','软体沙发','子母床','茶台','茶几和电视柜','梳妆台','衣柜','鞋柜','床头柜','书桌','床垫'];
+  var BASE_CATS = ['实木床','软体床','餐桌','实木沙发','软体沙发','子母床','儿童床','茶台','茶几和电视柜','梳妆台','衣柜','鞋柜','床头柜','书桌','床垫'];
 
   var $ = function (s) { return document.querySelector(s); };
   var PASS_KEY = 'ky_admin_pass';
