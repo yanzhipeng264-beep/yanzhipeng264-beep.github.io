@@ -52,6 +52,11 @@
   .login h1{font-size:18px;margin-bottom:4px;}
   .login .sub{color:var(--muted);font-size:12px;margin-bottom:18px;}
   .hidden{display:none !important;}
+  .post-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;}
+  .post-item img{width:56px;height:42px;object-fit:cover;border-radius:6px;background:#eee;}
+  .post-noimg{width:56px;height:42px;border-radius:6px;background:#f3efe8;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:12px;flex:none;}
+  .post-info{flex:1;min-width:0;display:flex;flex-direction:column;}
+  .post-info b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .item-card{position:relative;border:1px solid var(--line);border-radius:10px;padding:8px 30px 8px 8px;margin-bottom:8px;background:#faf7f2;}
   .item-card .row2{margin-bottom:6px;}
   .item-card input{margin-bottom:0;}
@@ -118,6 +123,7 @@
       <div class="tabs">
         <button class="tab active" data-tab="products">产品管理</button>
         <button class="tab" data-tab="settings">门店设置</button>
+        <button class="tab" data-tab="posts">图文</button>
       </div>
 
       <section id="tab-products">
@@ -164,6 +170,14 @@
       </section>
     </div>
   </div>
+
+  <section id="tab-posts" class="hidden">
+        <div class="bar">
+          <button class="btn primary" id="btnAddPost">＋ 新增图文</button>
+          <span class="hint" id="postCountHint"></span>
+        </div>
+        <div class="panel" id="postList"></div>
+      </section>
 
   <!-- product modal -->
   <div class="modal" id="prodModal">
@@ -233,8 +247,38 @@
     <div class="lb-wrap" id="lbWrap"><div class="lb-inner"><img id="lbImg" src="" alt=""></div></div>
   </div>
 
+  <div class="modal" id="postModal">
+    <div class="modal-panel">
+      <div class="modal-head"><h2 id="ptTitle">新增图文</h2><button class="x" id="ptClose">×</button></div>
+      <div class="field"><label>标题</label><input id="pt_title"></div>
+      <div class="field"><label>正文（可多行）</label><textarea id="pt_content" rows="8"></textarea></div>
+      <div class="field"><label>封面图</label>
+        <input id="pt_cover" placeholder="封面图片链接">
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <button class="btn small" id="btnUploadCover">上传封面</button>
+          <input type="file" id="fileCover" accept="image/*" style="display:none">
+          <span class="muted">可留空</span>
+        </div>
+        <img class="img-preview" id="pt_cover_preview" alt="预览">
+      </div>
+      <div class="field"><label>正文图片（可多张）</label>
+        <div id="pt_imgs" class="img-list"></div>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn small" id="btnAddPostImg">＋ 上传图片</button>
+          <input type="file" id="filePostImg" accept="image/*" style="display:none">
+          <input id="pt_imgurl" placeholder="粘贴图片链接" style="flex:1;min-width:120px">
+          <button class="btn small" id="btnAddPostUrl">添加链接</button>
+        </div>
+      </div>
+      <div class="field" style="display:flex;gap:16px">
+        <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="pt_published" checked> 发布显示</label>
+      </div>
+      <button class="btn primary" style="width:100%" id="ptSave">保存图文</button>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
-  <script src="/js/sortable.min.js?v=20260925z"></script>
-  <script src="/js/admin.js?v=20260925z"></script>
+  <script src="/js/sortable.min.js?v=20260926a"></script>
+  <script src="/js/admin.js?v=20260926a"></script>
 </body>
 </html>

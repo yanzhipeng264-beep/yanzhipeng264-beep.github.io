@@ -4,7 +4,7 @@
   var SUPABASE_URL = 'https://bettcoexauuhqlngmggp.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJldHRjb2V4YXV1aHFsbmdtZ2dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyODcwNzIsImV4cCI6MjEwNTg2MzA3Mn0.gshK5D8qn498gUz23pQZEg2pWRwek8T1sdwg1lTSYn4';
 
-  var state = { settings: null, products: [], activeCategory: '全部', query: '', sort: 'default', gallery: [], galleryIdx: 0 };
+  var state = { settings: null, products: [], activeCategory: '全部', query: '', sort: 'default', gallery: [], galleryIdx: 0, posts: [] };
 
   var $ = function (s) { return document.querySelector(s); };
 
@@ -95,6 +95,33 @@
         renderProducts();
       });
     });
+  }
+
+  function renderPosts() {
+    var posts = state.posts || [];
+    if (!posts.length) { $('#postsSec').style.display = 'none'; return; }
+    $('#postsSec').style.display = '';
+    $('#postsList').innerHTML = posts.map(function (p) {
+      return '<div class="post-card" data-id="' + esc(p.id) + '">' +
+        (p.cover ? '<img src="' + esc(p.cover) + '" alt="">' : '<div class="post-noimg">图文</div>') +
+        '<div class="post-card-title">' + esc(p.title) + '</div>' +
+      '</div>';
+    }).join('');
+    $('#postsList').querySelectorAll('.post-card').forEach(function (c) {
+      c.onclick = function () {
+        var id = c.getAttribute('data-id');
+        var p = state.posts.filter(function (x) { return x.id === id; })[0];
+        if (p) openPost(p);
+      };
+    });
+  }
+  function openPost(p) {
+    $('#pvTitle').textContent = p.title || '';
+    var html = String(p.content || '').split('\n').map(function (line) { return '<p>' + esc(line) + '</p>'; }).join('');
+    (p.images || []).forEach(function (u) { html += '<img class="post-img" src="' + esc(u) + '" alt="">'; });
+    $('#pvContent').innerHTML = html;
+    $('#postViewModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
 
   function renderCoupons() {
@@ -256,6 +283,9 @@
             price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false, views: p.views || 0, images: (p.images && p.images.length) ? p.images : [], items: (p.items && p.items.length) ? p.items : []
           };
         });
+      }),
+      sb('/rest/v1/posts?select=*&order=sort_order.asc').then(function (rows) {
+        state.posts = (rows || []);
       })
     ]);
   }
@@ -264,6 +294,7 @@
     $('#detailModal').querySelectorAll('[data-close]').forEach(function (el) { el.addEventListener('click', closeDetail); });
     $('#btnCoupon').addEventListener('click', function () { renderCoupons(); $('#couponModal').classList.add('open'); document.body.style.overflow = 'hidden'; });
     $('#couponModal').querySelectorAll('[data-close]').forEach(function (el) { el.addEventListener('click', function () { $('#couponModal').classList.remove('open'); document.body.style.overflow = ''; }); });
+    $('#postViewModal').querySelectorAll('[data-close]').forEach(function (el) { el.addEventListener('click', function () { $('#postViewModal').classList.remove('open'); document.body.style.overflow = ''; }); });
     $('#btnCopy').addEventListener('click', function () {
       var addr = (state.settings || {}).address || '';
       if (!addr) { toast('暂未填写地址'); return; }
@@ -288,7 +319,7 @@
       });
     });
     loadData().then(function () {
-      renderSettings(); renderCategories(); renderProducts(); renderCoupons();
+      renderSettings(); renderCategories(); renderProducts(); renderCoupons(); renderPosts();
     }).catch(function (e) { toast('加载失败，请刷新重试'); });
   }
 

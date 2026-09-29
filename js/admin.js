@@ -14,6 +14,9 @@
   var filterCat = '';
   var imgList = [];
   var itemList = [];
+  var posts = [];
+  var editingPostId = null;
+  var postImgList = [];
 
   function pass() { return localStorage.getItem(PASS_KEY) || ''; }
   function setPass(p) { localStorage.setItem(PASS_KEY, p); }
@@ -480,6 +483,81 @@
     });
   }
 
+  function loadPosts() {
+    return sb('/rest/v1/posts?select=*&order=sort_order.asc,created_at.asc').then(function (rows) {
+      posts = (rows || []).map(function (p) { return { id: p.id, title: p.title || '', content: p.content || '', cover: p.cover || '', images: (p.images && p.images.length) ? p.images : [], sort_order: p.sort_order || 0, published: p.published !== false }; });
+      renderPosts();
+    }).catch(function (e) { toast(e.message); });
+  }
+  function renderPosts() {
+    $('#postCountHint').textContent = '共 ' + posts.length + ' 篇图文';
+    if (!posts.length) { $('#postList').innerHTML = '<div class="muted">暂无图文，点击“新增图文”。</div>'; return; }
+    $('#postList').innerHTML = posts.map(function (p) {
+      return '<div class="post-item">' +
+        (p.cover ? '<img src="' + esc(p.cover) + '" alt="" onerror="this.style.display=\'none\'">' : '<div class="post-noimg">图</div>') +
+        '<div class="post-info"><b>' + esc(p.title) + '</b><span class="muted">' + (p.published ? '已发布' : '未发布') + '</span></div>' +
+        '<button class="btn small" data-pedit="' + esc(p.id) + '">编辑</button>' +
+        '<button class="btn small" data-pdel="' + esc(p.id) + '">删除</button>' +
+      '</div>';
+    }).join('');
+    $('#postList').querySelectorAll('[data-pedit]').forEach(function (b) { b.onclick = function () { openPostModal(b.getAttribute('data-pedit')); }; });
+    $('#postList').querySelectorAll('[data-pdel]').forEach(function (b) { b.onclick = function () { delPost(b.getAttribute('data-pdel')); }; });
+  }
+  function renderPostImgs() {
+    var box = $('#pt_imgs');
+    if (!postImgList.length) { box.innerHTML = '<div class="muted">暂无图片</div>'; return; }
+    box.innerHTML = postImgList.map(function (url, i) {
+      return '<div class="img-item"><img src="' + esc(url) + '" alt="" onerror="this.style.opacity=.3"><button type="button" class="img-del" data-i="' + i + '">×</button></div>';
+    }).join('');
+    box.querySelectorAll('.img-del').forEach(function (b) { b.onclick = function () { postImgList.splice(parseInt(b.getAttribute('data-i'), 10), 1); renderPostImgs(); }; });
+  }
+  function updatePostCover(url) { var img = $('#pt_cover_preview'); if (url) { img.src = url; img.style.display = 'block'; } else { img.style.display = 'none'; } }
+  function openPostModal(id) {
+    editingPostId = id || null;
+    var p = id ? posts.filter(function (x) { return x.id === id; })[0] : null;
+    postImgList = p ? ((p.images && p.images.length) ? p.images.slice() : []) : [];
+    $('#ptTitle').textContent = p ? '编辑图文' : '新增图文';
+    $('#pt_title').value = p ? p.title : '';
+    $('#pt_content').value = p ? p.content : '';
+    $('#pt_cover').value = p ? p.cover : '';
+    $('#pt_imgurl').value = '';
+    $('#pt_published').checked = p ? p.published !== false : true;
+    updatePostCover(p ? p.cover : '');
+    renderPostImgs();
+    $('#postModal').classList.add('open');
+  }
+  function closePostModal() { $('#postModal').classList.remove('open'); }
+  function savePost() {
+    var title = $('#pt_title').value.trim();
+    if (!title) { toast('请填写标题'); return; }
+    var d = { title: title, content: $('#pt_content').value.trim(), cover: $('#pt_cover').value.trim(), images: postImgList, published: $('#pt_published').checked };
+    var p;
+    if (editingPostId) { p = sb('/rest/v1/posts?id=eq.' + encodeURIComponent(editingPostId), { method: 'PATCH', body: JSON.stringify(d), prefer: 'return=representation' }); }
+    else {
+      d.id = 'po' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+      var maxSo = 0; posts.forEach(function (x) { if ((x.sort_order || 0) > maxSo) maxSo = x.sort_order || 0; });
+      d.sort_order = maxSo + 1;
+      p = sb('/rest/v1/posts', { method: 'POST', body: JSON.stringify(d), prefer: 'return=representation' });
+    }
+    p.then(function () { toast('已保存'); closePostModal(); loadPosts(); }).catch(function (e) { toast(e.status === 401 || e.status === 403 ? '密码错误或无权限' : e.message); });
+  }
+  function delPost(id) {
+    if (!confirm('确定删除该图文？')) return;
+    sb('/rest/v1/posts?id=eq.' + encodeURIComponent(id), { method: 'DELETE' }).then(function () { toast('已删除'); loadPosts(); }).catch(function (e) { toast(e.message); });
+  }
+  function uploadPostFile(file, cb) {
+    var ext = (file.name.match(/.w+$/) || ['.jpg'])[0].toLowerCase();
+    if (['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg'].indexOf(ext) === -1) { toast('仅支持图片格式'); return; }
+    var fname = 'img_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7) + ext;
+    var reader = new FileReader();
+    reader.onload = function () {
+      fetch(SUPABASE_URL + '/storage/v1/object/product-images/' + fname, { method: 'POST', headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'x-admin-password': pass(), 'Content-Type': file.type || 'application/octet-stream' }, body: reader.result })
+        .then(function (r) { if (!r.ok) throw new Error('上传失败 ' + r.status); cb(SUPABASE_URL + '/storage/v1/object/public/product-images/' + fname); })
+        .catch(function (e) { toast(e.message); });
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
   function bind() {
     $('#btnLogin').onclick = function () {
       var pw = $('#loginPass').value;
@@ -498,6 +576,8 @@
         var tab = t.getAttribute('data-tab');
         $('#tab-products').classList.toggle('hidden', tab !== 'products');
         $('#tab-settings').classList.toggle('hidden', tab !== 'settings');
+        $('#tab-posts').classList.toggle('hidden', tab !== 'posts');
+        if (tab === 'posts') loadPosts();
       };
     });
 
@@ -532,6 +612,16 @@
     $('#btnAddItem').onclick = function () { itemList.push({ name: '', model: '', dimensions: '', material: '', price: '' }); renderItems(); };
     $('#btnSaveSettings').onclick = saveSettings;
     $('#prodModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+    $('#btnAddPost').onclick = function () { openPostModal(null); };
+    $('#ptClose').onclick = closePostModal;
+    $('#ptSave').onclick = savePost;
+    $('#btnUploadCover').onclick = function () { $('#fileCover').click(); };
+    $('#fileCover').onchange = function () { if (this.files && this.files[0]) uploadPostFile(this.files[0], function (url) { $('#pt_cover').value = url; updatePostCover(url); toast('封面已上传'); }); };
+    $('#btnAddPostImg').onclick = function () { $('#filePostImg').click(); };
+    $('#filePostImg').onchange = function () { if (this.files && this.files[0]) uploadPostFile(this.files[0], function (url) { postImgList.push(url); renderPostImgs(); toast('图片已上传'); }); };
+    $('#btnAddPostUrl').onclick = function () { var u = $('#pt_imgurl').value.trim(); if (u) { postImgList.push(u); renderPostImgs(); $('#pt_imgurl').value = ''; } };
+    $('#pt_cover').addEventListener('input', function () { updatePostCover(this.value.trim()); });
+    $('#postModal').addEventListener('click', function (e) { if (e.target === this) closePostModal(); });
     $('#prodModal').addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && $('#prodModal').classList.contains('open')) {
         var tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : '';

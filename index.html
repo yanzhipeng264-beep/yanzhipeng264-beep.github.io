@@ -98,6 +98,11 @@
     </div>
   </section>
 
+  <section class="posts-sec" id="postsSec" style="display:none">
+    <h2 class="sec-title"><span>图文推荐</span></h2>
+    <div class="posts-list" id="postsList"></div>
+  </section>
+
   <footer class="footer">
     <p>© <span id="year"></span> <span id="footName">康艺省钱家具超市（河源店）</span></p>
     <p class="foot-slogan">为河源人民省钱</p>
@@ -112,6 +117,19 @@
           <div class="coupon-title">🎫 团购券</div>
           <div class="coupon-sub">到抖音「康艺·省钱家具超市(河源店)」购买，到店使用</div>
           <div class="coupon-list" id="couponList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="postViewModal" aria-hidden="true">
+    <div class="modal-mask" data-close></div>
+    <div class="modal-panel">
+      <button class="modal-close" data-close aria-label="关闭">×</button>
+      <div class="modal-scroll">
+        <div class="modal-body">
+          <h3 class="post-view-title" id="pvTitle"></h3>
+          <div class="post-view-content" id="pvContent"></div>
         </div>
       </div>
     </div>

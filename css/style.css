@@ -180,3 +180,13 @@ input{font-family:inherit;}
 .coupon-name{font-size:15px;font-weight:700;}
 .coupon-cond{font-size:12px;color:#b08a2e;}
 .coupon-use{display:flex;align-items:center;padding:0 16px;background:linear-gradient(135deg,#e8a317,#d89010);color:#fff;font-size:13px;font-weight:700;border-left:1px dashed #fff;}
+.posts-sec{max-width:1080px;margin:0 auto;padding:6px 16px 10px;}
+.posts-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+@media(min-width:720px){.posts-list{grid-template-columns:repeat(3,1fr);}}
+.post-card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;}
+.post-card img{width:100%;aspect-ratio:16/9;object-fit:cover;background:#eee;display:block;}
+.post-card .post-noimg{width:100%;aspect-ratio:16/9;background:#f3efe8;display:flex;align-items:center;justify-content:center;color:#c9b8a5;font-size:14px;}
+.post-card-title{padding:10px 12px;font-size:14px;font-weight:700;line-height:1.4;}
+.post-view-title{font-size:19px;font-weight:800;margin-bottom:12px;}
+.post-view-content p{font-size:15px;line-height:1.7;margin-bottom:10px;color:#444;}
+.post-view-content .post-img{width:100%;border-radius:8px;margin:6px 0;display:block;background:#eee;}
