@@ -4,7 +4,7 @@
   var SUPABASE_URL = 'https://bettcoexauuhqlngmggp.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJldHRjb2V4YXV1aHFsbmdtZ2dwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyODcwNzIsImV4cCI6MjEwNTg2MzA3Mn0.gshK5D8qn498gUz23pQZEg2pWRwek8T1sdwg1lTSYn4';
 
-  var BASE_CATS = ['实木床','软体床','餐桌','实木沙发','儿童床','茶台','茶几','梳妆台','电视柜','衣柜','床头柜','书桌','床垫'];
+  var BASE_CATS = ['实木床','软体床','餐桌','实木沙发','软体沙发','儿童床','茶台','茶几','梳妆台','电视柜','衣柜','床头柜','书桌','床垫'];
 
   var $ = function (s) { return document.querySelector(s); };
   var PASS_KEY = 'ky_admin_pass';
@@ -186,7 +186,7 @@
   }
   function closeCrop() { $('#cropbox').classList.remove('open'); }
   function resetCropSel() { var sel = $('#cropSel'); sel.style.display = 'none'; sel.style.left = '0px'; sel.style.top = '0px'; sel.style.width = '0px'; sel.style.height = '0px'; }
-  function setCropSel(x1, y1, x2, y2) { var sel = $('#cropSel'); sel.style.left = Math.max(0, Math.min(x1, x2)) + 'px'; sel.style.top = Math.max(0, Math.min(y1, y2)) + 'px'; sel.style.width = Math.abs(x2 - x1) + 'px'; sel.style.height = Math.abs(y2 - y1) + 'px'; sel.style.display = 'block'; }
+  function setCropSel(x1, y1, x2, y2) { var holder = $('#cropHolder').getBoundingClientRect(); var l = Math.min(x1, x2), t = Math.min(y1, y2); var w = Math.abs(x2 - x1), h = Math.abs(y2 - y1); var W = Math.max(w, h * 4 / 3); var H = W * 3 / 4; if (W > holder.width) { W = holder.width; H = W * 3 / 4; } if (H > holder.height) { H = holder.height; W = H * 4 / 3; } l = Math.max(0, Math.min(holder.width - W, l)); t = Math.max(0, Math.min(holder.height - H, t)); var sel = $('#cropSel'); sel.style.left = l + 'px'; sel.style.top = t + 'px'; sel.style.width = W + 'px'; sel.style.height = H + 'px'; sel.style.display = 'block'; }
   function autoCrop() {
     var img = $('#cropImg');
     if (!img || !img.naturalWidth) { toast('图片未加载'); return; }
