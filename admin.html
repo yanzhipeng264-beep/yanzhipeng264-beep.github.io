@@ -123,13 +123,13 @@
       <div class="tabs">
         <button class="tab active" data-tab="products">产品管理</button>
         <button class="tab" data-tab="settings">门店设置</button>
-        <button class="tab" data-tab="posts">图文</button>
       </div>
 
       <section id="tab-products">
         <div class="bar">
           <button class="btn primary" id="btnAdd">＋ 新增产品</button>
           <button class="btn" id="btnBatch">批量添加</button>
+          <button class="btn" id="btnPosts">图文</button>
           <select id="filterCat"><option value="">全部分类</option></select>
           <span class="hint" id="countHint"></span>
         </div>
@@ -171,13 +171,16 @@
     </div>
   </div>
 
-  <section id="tab-posts" class="hidden">
-        <div class="bar">
-          <button class="btn primary" id="btnAddPost">＋ 新增图文</button>
-          <span class="hint" id="postCountHint"></span>
-        </div>
-        <div class="panel" id="postList"></div>
-      </section>
+  <div class="modal" id="postListModal">
+    <div class="modal-panel">
+      <div class="modal-head"><h2>图文管理</h2><button class="x" id="postListClose">×</button></div>
+      <div class="bar">
+        <button class="btn primary" id="btnAddPost">＋ 新增图文</button>
+        <span class="hint" id="postCountHint"></span>
+      </div>
+      <div class="panel" id="postList"></div>
+    </div>
+  </div>
 
   <!-- product modal -->
   <div class="modal" id="prodModal">
@@ -278,7 +281,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
-  <script src="/js/sortable.min.js?v=20260926a"></script>
-  <script src="/js/admin.js?v=20260926a"></script>
+  <script src="/js/sortable.min.js?v=20260926b"></script>
+  <script src="/js/admin.js?v=20260926b"></script>
 </body>
 </html>

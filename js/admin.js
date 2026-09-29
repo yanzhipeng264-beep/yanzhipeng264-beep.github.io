@@ -576,8 +576,6 @@
         var tab = t.getAttribute('data-tab');
         $('#tab-products').classList.toggle('hidden', tab !== 'products');
         $('#tab-settings').classList.toggle('hidden', tab !== 'settings');
-        $('#tab-posts').classList.toggle('hidden', tab !== 'posts');
-        if (tab === 'posts') loadPosts();
       };
     });
 
@@ -612,6 +610,9 @@
     $('#btnAddItem').onclick = function () { itemList.push({ name: '', model: '', dimensions: '', material: '', price: '' }); renderItems(); };
     $('#btnSaveSettings').onclick = saveSettings;
     $('#prodModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+    $('#btnPosts').onclick = function () { loadPosts(); $('#postListModal').classList.add('open'); };
+    $('#postListClose').onclick = function () { $('#postListModal').classList.remove('open'); };
+    $('#postListModal').addEventListener('click', function (e) { if (e.target === this) $('#postListModal').classList.remove('open'); });
     $('#btnAddPost').onclick = function () { openPostModal(null); };
     $('#ptClose').onclick = closePostModal;
     $('#ptSave').onclick = savePost;
