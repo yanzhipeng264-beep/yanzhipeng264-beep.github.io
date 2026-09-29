@@ -68,7 +68,7 @@
         id: p.id, category: p.category || '', name: p.name || '', model: p.model || '',
         spec: p.spec || '', dimensions: p.dimensions || '', material: p.material || '',
         price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false,
-        sort_order: p.sort_order || 0, views: p.views || 0, images: (p.images && p.images.length) ? p.images : []
+        sort_order: p.sort_order || 0, views: p.views || 0, images: (p.images && p.images.length) ? p.images : [], items: (p.items && p.items.length) ? p.items : []
       }; });
       renderRows(); renderCatList(); renderFilter();
     }).catch(function (e) { if (e.status === 401 || e.status === 403) { clearPass(); showLogin(); } else toast(e.message); });
@@ -320,8 +320,9 @@
   function saveProduct() {
     var name = $('#pm_name').value.trim();
     var price = $('#pm_price').value.trim();
+    var items = collectItems();
     if (!name) { toast('请填写产品名称'); return; }
-    if (!price) { toast('请填写一口价'); return; }
+    if (!price && !items.length) { toast('请填写一口价'); return; }
     var d = {
       name: name,
       category: $('#pm_category').value.trim(),
@@ -332,13 +333,13 @@
       material: $('#pm_material').value.trim(),
       image: imgList[0] || '',
       images: imgList,
-      items: collectItems(),
+      items: items,
       featured: $('#pm_featured').checked,
       on_sale: $('#pm_onSale').checked
     };
-    if (d.items && d.items.length) {
+    if (items.length) {
       var total = 0;
-      d.items.forEach(function (it) { total += parseFloat(it.price) || 0; });
+      items.forEach(function (it) { total += parseFloat(it.price) || 0; });
       d.price = String(total);
     }
     var p;
