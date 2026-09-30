@@ -71,7 +71,7 @@
         id: p.id, category: p.category || '', name: p.name || '', model: p.model || '',
         spec: p.spec || '', dimensions: p.dimensions || '', material: p.material || '',
         price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false,
-        sort_order: p.sort_order || 0, views: p.views || 0, images: (p.images && p.images.length) ? p.images : [], items: (p.items && p.items.length) ? p.items : [], content: p.content || ''
+        sort_order: p.sort_order || 0, views: p.views || 0, images: (p.images && p.images.length) ? p.images : [], items: (p.items && p.items.length) ? p.items : [], content: p.content || '', priceSum: p.price_sum !== false
       }; });
       renderRows(); renderCatList(); renderFilter();
     }).catch(function (e) { if (e.status === 401 || e.status === 403) { clearPass(); showLogin(); } else toast(e.message); });
@@ -283,6 +283,7 @@
     $('#pm_featured').checked = p ? !!p.featured : false;
     $('#pm_onSale').checked = p ? p.onSale !== false : true;
     $('#pm_content').value = p ? (p.content || '') : '';
+    $('#pm_priceSum').checked = p ? p.price_sum !== false : true;
     itemList = p ? ((p.items && p.items.length) ? p.items.slice() : []) : [];
     renderItems();
     renderImgs();
@@ -336,13 +337,14 @@
       dimensions: $('#pm_dimensions').value.trim(),
       material: $('#pm_material').value.trim(),
       content: $('#pm_content').value.trim(),
+      price_sum: $('#pm_priceSum').checked,
       image: imgList[0] || '',
       images: imgList,
       items: items,
       featured: $('#pm_featured').checked,
       on_sale: $('#pm_onSale').checked
     };
-    if (items.length) {
+    if (items.length && $('#pm_priceSum').checked) {
       var total = 0;
       items.forEach(function (it) { total += parseFloat(it.price) || 0; });
       d.price = String(total);

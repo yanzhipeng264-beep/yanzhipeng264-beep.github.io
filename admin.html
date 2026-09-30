@@ -209,6 +209,9 @@
         <div id="pm_items" class="items-list"></div>
         <button class="btn small" id="btnAddItem" style="margin-top:6px">＋ 添加一件</button>
       </div>
+      <div class="field" style="display:flex;align-items:center;gap:8px">
+        <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="pm_priceSum" checked> 价格叠加（组合产品总价 = 各件价格之和）</label>
+      </div>
       <div class="field"><label>图文正文（选填，可多行）</label><textarea id="pm_content" rows="4" placeholder="产品图文详细介绍，可多行"></textarea></div>
       <div class="field" style="display:flex;gap:16px">
         <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="pm_featured"> 推荐置顶</label>
@@ -281,7 +284,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
-  <script src="/js/sortable.min.js?v=20260926c"></script>
-  <script src="/js/admin.js?v=20260926c"></script>
+  <script src="/js/sortable.min.js?v=20260926d"></script>
+  <script src="/js/admin.js?v=20260926d"></script>
 </body>
 </html>
