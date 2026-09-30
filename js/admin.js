@@ -189,6 +189,18 @@
     $('#cropbox').classList.add('open');
   }
   function closeCrop() { $('#cropbox').classList.remove('open'); }
+  function saveImage(url) {
+    if (!url) return;
+    fetch(url).then(function (r) { return r.blob(); }).then(function (blob) {
+      var objUrl = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = objUrl;
+      a.download = (url.split('/').pop() || 'image.jpg');
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(objUrl); document.body.removeChild(a); }, 1000);
+    }).catch(function () { window.open(url, '_blank'); });
+  }
   function resetCropSel() { var sel = $('#cropSel'); sel.style.display = 'none'; sel.style.left = '0px'; sel.style.top = '0px'; sel.style.width = '0px'; sel.style.height = '0px'; }
   function setCropSel(x1, y1, x2, y2) { var holder = $('#cropHolder').getBoundingClientRect(); var l = Math.min(x1, x2), t = Math.min(y1, y2); var w = Math.abs(x2 - x1), h = Math.abs(y2 - y1); var W = Math.max(w, h * 4 / 3); var H = W * 3 / 4; if (W > holder.width) { W = holder.width; H = W * 3 / 4; } if (H > holder.height) { H = holder.height; W = H * 4 / 3; } l = Math.max(0, Math.min(holder.width - W, l)); t = Math.max(0, Math.min(holder.height - H, t)); var sel = $('#cropSel'); sel.style.left = l + 'px'; sel.style.top = t + 'px'; sel.style.width = W + 'px'; sel.style.height = H + 'px'; sel.style.display = 'block'; }
   function autoCrop() {
@@ -602,6 +614,7 @@
     $('#btnAdd').onclick = function () { openModal(null); };
     $('#lbClose').onclick = closeLightbox;
     $('#lbCrop').onclick = function () { if (currentLbUrl) openCrop(currentLbUrl); };
+    $('#lbSave').onclick = function () { if (currentLbUrl) saveImage(currentLbUrl); };
     $('#cropCancel').onclick = closeCrop;
     $('#cropSave').onclick = cropSave;
     $('#cropAuto').onclick = autoCrop;

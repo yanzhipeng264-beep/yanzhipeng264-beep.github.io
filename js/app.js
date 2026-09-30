@@ -124,6 +124,28 @@
     document.body.style.overflow = 'hidden';
   }
 
+  function openFullView(url) {
+    $('#fvImg').src = url || '/img/logo.png';
+    $('#fullView').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeFullView() {
+    $('#fullView').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function saveImage(url) {
+    if (!url) return;
+    fetch(url).then(function (r) { return r.blob(); }).then(function (blob) {
+      var objUrl = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = objUrl;
+      a.download = (url.split('/').pop() || 'image.jpg');
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { URL.revokeObjectURL(objUrl); document.body.removeChild(a); }, 1000);
+    }).catch(function () { window.open(url, '_blank'); });
+  }
+
   function renderCoupons() {
     var coupons = (state.settings && state.settings.coupons) || [];
     if (!coupons.length) { $('#couponList').innerHTML = '<div class="coupon-sub">暂无团购券</div>'; return; }
@@ -311,6 +333,10 @@
     });
     $('#mPrev').addEventListener('click', function () { if (state.galleryIdx > 0) { state.galleryIdx--; renderGallery(); } });
     $('#mNext').addEventListener('click', function () { if (state.galleryIdx < (state.gallery || []).length - 1) { state.galleryIdx++; renderGallery(); } });
+    $('#mImg').addEventListener('click', function () { var s = $('#mImg').getAttribute('src'); if (s) openFullView(s); });
+    $('#fvClose').onclick = closeFullView;
+    $('#fvSave').onclick = function () { saveImage($('#fvImg').getAttribute('src')); };
+    $('#fullView').addEventListener('click', function (e) { if (e.target === this) closeFullView(); });
     var qEl = $('#q');
     var timer = null;
     qEl.addEventListener('input', function () {
