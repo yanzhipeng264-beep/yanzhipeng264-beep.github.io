@@ -71,7 +71,7 @@
         id: p.id, category: p.category || '', name: p.name || '', model: p.model || '',
         spec: p.spec || '', dimensions: p.dimensions || '', material: p.material || '',
         price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false,
-        sort_order: p.sort_order || 0, views: p.views || 0, images: (p.images && p.images.length) ? p.images : [], items: (p.items && p.items.length) ? p.items : []
+        sort_order: p.sort_order || 0, views: p.views || 0, images: (p.images && p.images.length) ? p.images : [], items: (p.items && p.items.length) ? p.items : [], content: p.content || ''
       }; });
       renderRows(); renderCatList(); renderFilter();
     }).catch(function (e) { if (e.status === 401 || e.status === 403) { clearPass(); showLogin(); } else toast(e.message); });
@@ -282,6 +282,7 @@
     $('#pm_imgurl').value = '';
     $('#pm_featured').checked = p ? !!p.featured : false;
     $('#pm_onSale').checked = p ? p.onSale !== false : true;
+    $('#pm_content').value = p ? (p.content || '') : '';
     itemList = p ? ((p.items && p.items.length) ? p.items.slice() : []) : [];
     renderItems();
     renderImgs();
@@ -334,6 +335,7 @@
       spec: $('#pm_spec').value.trim(),
       dimensions: $('#pm_dimensions').value.trim(),
       material: $('#pm_material').value.trim(),
+      content: $('#pm_content').value.trim(),
       image: imgList[0] || '',
       images: imgList,
       items: items,
@@ -610,7 +612,6 @@
     $('#btnAddItem').onclick = function () { itemList.push({ name: '', model: '', dimensions: '', material: '', price: '' }); renderItems(); };
     $('#btnSaveSettings').onclick = saveSettings;
     $('#prodModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
-    $('#btnPosts').onclick = function () { loadPosts(); $('#postListModal').classList.add('open'); };
     $('#postListClose').onclick = function () { $('#postListModal').classList.remove('open'); };
     $('#postListModal').addEventListener('click', function (e) { if (e.target === this) $('#postListModal').classList.remove('open'); });
     $('#btnAddPost').onclick = function () { openPostModal(null); };

@@ -219,6 +219,13 @@
       $('#mSpecTable').style.display = '';
       $('#mItems').style.display = 'none';
     }
+    var content = p.content || '';
+    if (content.trim()) {
+      $('#mContent').style.display = 'block';
+      $('#mContent').innerHTML = content.split('\n').map(function (line) { return '<p>' + esc(line) + '</p>'; }).join('');
+    } else {
+      $('#mContent').style.display = 'none';
+    }
     var v = (p.views || 0) + 1;
     p.views = v;
     $('#mViews').textContent = '👁 ' + v + ' 次浏览';
@@ -280,7 +287,7 @@
           return {
             id: p.id, category: p.category || '', name: p.name || '', model: p.model || '',
             spec: p.spec || '', dimensions: p.dimensions || '', material: p.material || '',
-            price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false, views: p.views || 0, images: (p.images && p.images.length) ? p.images : [], items: (p.items && p.items.length) ? p.items : []
+            price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false, views: p.views || 0, images: (p.images && p.images.length) ? p.images : [], items: (p.items && p.items.length) ? p.items : [], content: p.content || ''
           };
         });
       }),

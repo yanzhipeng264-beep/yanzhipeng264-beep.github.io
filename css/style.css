@@ -190,3 +190,5 @@ input{font-family:inherit;}
 .post-view-title{font-size:19px;font-weight:800;margin-bottom:12px;}
 .post-view-content p{font-size:15px;line-height:1.7;margin-bottom:10px;color:#444;}
 .post-view-content .post-img{width:100%;border-radius:8px;margin:6px 0;display:block;background:#eee;}
+.m-content{margin:12px 0;padding-top:12px;border-top:1px dashed var(--line);}
+.m-content p{font-size:14.5px;line-height:1.75;margin-bottom:8px;color:#444;}
