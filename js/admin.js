@@ -71,7 +71,7 @@
         id: p.id, category: p.category || '', name: p.name || '', model: p.model || '',
         spec: p.spec || '', dimensions: p.dimensions || '', material: p.material || '',
         price: p.price || '', image: p.image || '', featured: !!p.featured, onSale: p.on_sale !== false,
-        sort_order: p.sort_order || 0, views: p.views || 0, images: (p.images && p.images.length) ? p.images : [], items: (p.items && p.items.length) ? p.items : [], content: p.content || '', priceSum: p.price_sum !== false
+        sort_order: p.sort_order || 0, views: p.views || 0, images: (p.images && p.images.length) ? p.images : [], items: (p.items && p.items.length) ? p.items : [], content: p.content || '', priceSum: p.price_sum !== false, remark: p.remark || ''
       }; });
       renderRows(); renderCatList(); renderFilter();
     }).catch(function (e) { if (e.status === 401 || e.status === 403) { clearPass(); showLogin(); } else toast(e.message); });
@@ -87,7 +87,7 @@
       return '<tr data-id="' + esc(p.id) + '">' +
         '<td class="drag-cell"><span class="drag-handle">⋮⋮</span></td>' +
         '<td><img src="' + esc(p.image || '/img/logo.png') + '" alt="" onerror="this.src=\'/img/logo.png\'"></td>' +
-        '<td><b>' + esc(p.name) + '</b><br><span class="muted">' + esc(p.model || '') + '</span></td>' +
+        '<td><b>' + esc(p.name) + '</b><br><span class="muted">' + esc(p.model || '') + '</span>' + (p.remark ? '<br><span class="muted">注：' + esc(p.remark) + '</span>' : '') + '</td>' +
         '<td>' + esc(p.category || '-') + '</td>' +
         '<td class="muted">' + esc(p.spec || '-') + '</td>' +
         '<td class="price">¥' + esc(p.price || '0') + '</td>' +
@@ -283,6 +283,7 @@
     $('#pm_featured').checked = p ? !!p.featured : false;
     $('#pm_onSale').checked = p ? p.onSale !== false : true;
     $('#pm_content').value = p ? (p.content || '') : '';
+    $('#pm_remark').value = p ? (p.remark || '') : '';
     $('#pm_priceSum').checked = p ? p.price_sum !== false : true;
     itemList = p ? ((p.items && p.items.length) ? p.items.slice() : []) : [];
     renderItems();
@@ -337,6 +338,7 @@
       dimensions: $('#pm_dimensions').value.trim(),
       material: $('#pm_material').value.trim(),
       content: $('#pm_content').value.trim(),
+      remark: $('#pm_remark').value.trim(),
       price_sum: $('#pm_priceSum').checked,
       image: imgList[0] || '',
       images: imgList,
