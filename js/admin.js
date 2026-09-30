@@ -284,7 +284,7 @@
     $('#pm_onSale').checked = p ? p.onSale !== false : true;
     $('#pm_content').value = p ? (p.content || '') : '';
     $('#pm_remark').value = p ? (p.remark || '') : '';
-    $('#pm_priceSum').checked = p ? p.price_sum !== false : true;
+    $('#pm_priceSum').checked = p ? p.priceSum !== false : true;
     itemList = p ? ((p.items && p.items.length) ? p.items.slice() : []) : [];
     renderItems();
     renderImgs();
