@@ -146,6 +146,32 @@
     }).catch(function () { window.open(url, '_blank'); });
   }
 
+  function openCatLightbox(url) {
+    $('#catLbImg').src = url;
+    $('#catLightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeCatLightbox() {
+    $('#catLightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function saveCatImage() {
+    var url = $('#catLbImg').getAttribute('src');
+    if (!url) return;
+    fetch(url).then(function (r) { if (!r.ok) throw new Error('x'); return r.blob(); }).then(function (blob) {
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'kangyi-img-' + Date.now() + '.jpg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+      toast('已开始保存');
+    }).catch(function () {
+      toast('保存失败，请长按图片保存到相册');
+    });
+  }
+
   function renderCoupons() {
     var coupons = (state.settings && state.settings.coupons) || [];
     if (!coupons.length) { $('#couponList').innerHTML = '<div class="coupon-sub">暂无团购券</div>'; return; }
@@ -333,6 +359,9 @@
     });
     $('#mPrev').addEventListener('click', function () { if (state.galleryIdx > 0) { state.galleryIdx--; renderGallery(); } });
     $('#mNext').addEventListener('click', function () { if (state.galleryIdx < (state.gallery || []).length - 1) { state.galleryIdx++; renderGallery(); } });
+    $('#mImg').addEventListener('click', function () { var imgs = state.gallery || []; if (imgs.length) openCatLightbox(imgs[state.galleryIdx || 0]); });
+    $('#catLbClose').addEventListener('click', closeCatLightbox);
+    $('#catLbSave').addEventListener('click', saveCatImage);
     $('#mImg').addEventListener('click', function () { var s = $('#mImg').getAttribute('src'); if (s) openFullView(s); });
     $('#fvClose').onclick = closeFullView;
     $('#fvSave').onclick = function () { saveImage($('#fvImg').getAttribute('src')); };
