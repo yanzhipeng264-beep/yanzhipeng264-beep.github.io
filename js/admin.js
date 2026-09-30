@@ -292,6 +292,18 @@
   }
   function closeModal() { $('#prodModal').classList.remove('open'); }
 
+  function syncItems() {
+    document.querySelectorAll('#pm_items .item-card').forEach(function (card) {
+      var i = parseInt(card.getAttribute('data-i'), 10);
+      if (!itemList[i]) itemList[i] = {};
+      itemList[i].name = card.querySelector('.it-name').value.trim();
+      itemList[i].model = card.querySelector('.it-model').value.trim();
+      itemList[i].dimensions = card.querySelector('.it-dim').value.trim();
+      itemList[i].material = card.querySelector('.it-mat').value.trim();
+      itemList[i].price = card.querySelector('.it-price').value.trim();
+    });
+  }
+
   function renderItems() {
     var box = $('#pm_items');
     if (!itemList.length) { box.innerHTML = '<div class="muted">暂无组合，普通产品可跳过此项。</div>'; return; }
@@ -305,7 +317,7 @@
       '</div>';
     }).join('');
     box.querySelectorAll('.item-del').forEach(function (b) {
-      b.onclick = function () { itemList.splice(parseInt(b.getAttribute('data-i'), 10), 1); renderItems(); };
+      b.onclick = function () { syncItems(); itemList.splice(parseInt(b.getAttribute('data-i'), 10), 1); renderItems(); };
     });
   }
   function collectItems() {
@@ -613,7 +625,7 @@
     $('#btnUpload').onclick = function () { $('#fileInput').click(); };
     $('#fileInput').onchange = function () { if (this.files && this.files[0]) uploadImage(this.files[0]); };
     $('#btnAddUrl').onclick = function () { addImg($('#pm_imgurl').value); $('#pm_imgurl').value = ''; };
-    $('#btnAddItem').onclick = function () { itemList.push({ name: '', model: '', dimensions: '', material: '', price: '' }); renderItems(); };
+    $('#btnAddItem').onclick = function () { syncItems(); itemList.push({ name: '', model: '', dimensions: '', material: '', price: '' }); renderItems(); };
     $('#btnSaveSettings').onclick = saveSettings;
     $('#prodModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
     $('#postListClose').onclick = function () { $('#postListModal').classList.remove('open'); };
